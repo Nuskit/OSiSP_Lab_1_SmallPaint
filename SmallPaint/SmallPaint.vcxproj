@@ -13,7 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D10DC7BD-CA4B-45A2-97E6-B89AE8A13580}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>Draw_Form</RootNamespace>
+    <RootNamespace>SmallPaint</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -74,13 +74,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="All_Figure.h" />
     <ClInclude Include="Arr_Fig.h" />
     <ClInclude Include="Chord.h" />
-    <ClInclude Include="Draw_Form.h" />
+    <ClInclude Include="SmallPaint.h" />
     <ClInclude Include="Ellipse.h" />
     <ClInclude Include="Line.h" />
     <ClInclude Include="Pie.h" />
@@ -95,7 +92,7 @@
   <ItemGroup>
     <ClCompile Include="All_Figure.cpp" />
     <ClCompile Include="Chord.cpp" />
-    <ClCompile Include="Draw_Form.cpp" />
+    <ClCompile Include="SmallPaint.cpp" />
     <ClCompile Include="Ellipse.cpp" />
     <ClCompile Include="Line.cpp" />
     <ClCompile Include="Pie.cpp" />
@@ -109,10 +106,10 @@
     <ClCompile Include="Triangle.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Draw_Form.rc" />
+    <ResourceCompile Include="SmallPaint.rc" />
   </ItemGroup>
   <ItemGroup>
-    <Image Include="Draw_Form.ico" />
+    <Image Include="SmallPaint.ico" />
     <Image Include="small.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -1,6 +1,6 @@
 #pragma once
 #include "stdafx.h"
-#include "Draw_Form.h"
+#include "SmallPaint.h"
 
 class Brush
 {
@@ -31,6 +31,7 @@ public:
 	virtual void Set_Start_Position(int, int)=0;
 	virtual void Set_End_Position(int, int)=0;
 	virtual void Add_New_Point(int, int){};
+  virtual ~Figure() {};
 };
 
 class AbstractFigure

@@ -1,6 +1,6 @@
 //{{NO_DEPENDENCIES}}
 // Microsoft Visual C++ generated include file.
-// Used by Draw_Form.rc
+// Used by SmallPaint.rc
 //
 
 #define Number_Button 8
@@ -22,13 +22,13 @@
 #define IDS_APP_TITLE			103
 
 #define IDR_MAINFRAME			128
-#define IDD_DRAW_FORM_DIALOG	102
+#define IDD_SmallPaint_DIALOG	102
 #define IDD_ABOUTBOX			103
 #define IDM_ABOUT				104
 #define IDM_EXIT				105
-#define IDI_DRAW_FORM			107
+#define IDI_SmallPaint			107
 #define IDI_SMALL				108
-#define IDC_DRAW_FORM			109
+#define IDC_SmallPaint			109
 #define IDC_MYICON				2
 #ifndef IDC_STATIC
 #define IDC_STATIC				-1
