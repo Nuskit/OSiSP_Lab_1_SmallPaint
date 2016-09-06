@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Round_Rectangle.h"
+using namespace Figures;
 
 void RoundRectangles::DrawRoundRectangles()
 {

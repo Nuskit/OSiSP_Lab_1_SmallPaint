@@ -1,15 +1,18 @@
 #pragma once
+
+#include "stdafx.h"
 #include "PolyLine.h"
 
-class Rectangles :protected PolyLine,public virtual Figure
+namespace Figures
 {
-public:
-	Rectangles();
-	void DrawRectangles();
-	void DrawRectangles(int, int);
-	void DrawRectangles(int, int, int, int);
+  class Rectangles :public PolyLine
+  {
+  public:
+    Rectangles();
+    void drawRectangles(HDC);
 
-	void Draw_figure(){ DrawRectangles(); }
-	void Draw_figure(int x,int y){ DrawRectangles(x, y); }
-	void Set_End_Position(int, int);
-};
+		const RECT& getRectZone();
+    void drawFigure(HDC);
+    void setEndPosition(int, int);
+  };
+}

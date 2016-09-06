@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Ellipse.h"
+using namespace Figures;
 
 Ellipses::Ellipses()
 {
@@ -9,22 +10,17 @@ Ellipses::Ellipses()
 	SetSize(size);
 }
 
-
-void Ellipses::DrawEllipses()
+void Ellipses::DrawEllipses(HDC hdc)
 {
 	brush.SetPen();
+	HGDIOBJ lastBrush=SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));
 	Ellipse(hdc, x[0], y[0], x[1], y[1]);
+	SelectObject(hdc, lastBrush);
 }
-void Ellipses::DrawEllipses(int new_x2, int new_y2)
+
+void Figures::Ellipses::drawFigure(HDC hdc)
 {
-	x[1] = new_x2;
-	y[1] = new_y2;
-	DrawEllipses();
-}
-void Ellipses::DrawEllipses(int new_x1, int new_y1, int new_x2, int new_y2)
-{
-	SetStartPosition(new_x1, new_y1);
-	DrawEllipses();
+	DrawEllipses(hdc);
 }
 
 void Ellipses::deletePos()
@@ -35,6 +31,11 @@ void Ellipses::deletePos()
 	if (y != NULL)
 		delete[]y;
 	y = NULL;
+}
+
+Figures::Ellipses::~Ellipses()
+{
+	deletePos();
 }
 
 void Ellipses::SetSize(int new_size)
@@ -56,4 +57,13 @@ void Ellipses::SetEndPosition(int next_x, int next_y)
 {
 	x[size - 1] = next_x;
 	y[size - 1] = next_y;
+}
+
+const RECT& Ellipses::getRectZone()
+{
+	rectZoneBuffer.bottom = (y[0] > y[1] ? y[0] : y[1]) + 2;
+	rectZoneBuffer.left = (x[0] > x[1] ? x[1] : x[0]) - 2;
+	rectZoneBuffer.right = (x[0] > x[1] ? x[0] : x[1]) + 2;
+	rectZoneBuffer.top = (y[0] > y[1] ? y[1] : y[0]) - 2;
+	return rectZoneBuffer;
 }

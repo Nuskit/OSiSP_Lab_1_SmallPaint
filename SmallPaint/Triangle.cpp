@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Triangle.h"
+using namespace Figures;
 
 void Triangle::SetPosition(int new_x2, int new_y2, int new_x3, int new_y3)
 {
@@ -35,7 +36,7 @@ void Triangle::DrawTriangle(int new_x1, int new_y1, int new_x2, int new_y2, int 
 	DrawTriangle();
 }
 
-void Triangle::Set_End_Position(int new_x2, int new_y2)
+void Triangle::setEndPosition(int new_x2, int new_y2)
 {
 	x[1] = new_x2;
 	y[1] = new_y2;
@@ -43,7 +44,7 @@ void Triangle::Set_End_Position(int new_x2, int new_y2)
 	y[2] = y[1];
 }
 
-void Triangle::Set_Start_Position(int new_x, int new_y)
+void Triangle::setStartPosition(int new_x, int new_y)
 {
 	SetStartPosition(new_x, new_y);
 	x[2] = new_x;

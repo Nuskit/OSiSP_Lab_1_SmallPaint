@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Line.h"
+using namespace Figures;
 
 void Lines::SetStartPosition(int x, int y)
 {
@@ -28,23 +29,23 @@ void Lines::GetEndPosition(int &x, int &y)
 	y = y2;
 }
 
-void Lines::DrawLine()
+void Lines::DrawLine(HDC hdc)
 {
 	brush.SetPen();
 	MoveToEx(hdc, x1, y1, NULL);
 	LineTo(hdc, x2, y2);
 }
-void Lines::DrawLine(int next_x2, int next_y2)
+
+void Figures::Lines::drawFigure(HDC hdc)
 {
-	brush.SetPen();
-	MoveToEx(hdc, x1, y1, NULL);
-	LineTo(hdc, next_x2, next_y2);
+   DrawLine(hdc);
 }
 
-
-void Lines::DrawLine(int new_x1, int new_y1, int new_x2, int new_y2)
+const RECT & Lines::getRectZone()
 {
-	brush.SetPen();
-	MoveToEx(hdc, new_x1, new_y1, NULL);
-	LineTo(hdc, new_x2, new_y2);
+	rectZoneBuffer.bottom = (y1 > y2 ? y1 : y2) +2;
+	rectZoneBuffer.left =		(x1 > x2 ? x2 : x1) -2;
+	rectZoneBuffer.right =	(x1 > x2 ? x1 : x2) +2;
+	rectZoneBuffer.top =		(y1 > y2 ? y2 : y1) -2;
+	return rectZoneBuffer;
 }

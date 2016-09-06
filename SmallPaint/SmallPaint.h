@@ -3,5 +3,5 @@
 #include "resource.h" 
 
 
-extern HWND hWnd;
+//extern HWND hWnd;
 extern HDC hdc;

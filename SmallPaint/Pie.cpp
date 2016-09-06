@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Pie.h"
+using namespace Figures;
 
 void Pies::DrawPies()
 {

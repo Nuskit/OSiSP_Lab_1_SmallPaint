@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "Chord.h"
+using namespace Figures;
 
 void Chords::DrawChords()
 {
@@ -35,13 +36,13 @@ void Chords::SetEll(int new_xEl1, int new_yEl1, int new_xEl2, int new_yEl2)
 	yEl2 = new_yEl2;
 }
 
-void Chords::Set_Start_Position(int new_x, int new_y)
+void Chords::setStartPosition(int new_x, int new_y)
 {
 	x[0]=x[1]=xEl1=xEl2= new_x;
 	y[0]=y[1]=xEl1=xEl2= new_y;
 }
 
-void Chords::Set_End_Position(int new_xEl, int new_yEl)
+void Chords::setEndPosition(int new_xEl, int new_yEl)
 {
 	if (!Set_Rectangle)
 	{

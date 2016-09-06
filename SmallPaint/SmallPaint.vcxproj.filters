@@ -13,86 +13,119 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Заголовочные файлы\Figures">
+      <UniqueIdentifier>{9753a598-48a2-4617-a74f-62a866841ce5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\Figures">
+      <UniqueIdentifier>{5e7063f6-f1be-4184-a66e-50b810add768}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Templates">
+      <UniqueIdentifier>{1f08d0c4-2128-4594-ae1d-3d988eb51a96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Заголовочные файлы\Default">
+      <UniqueIdentifier>{d196bf7f-9b2d-4fdb-84b0-014c17a93144}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы исходного кода\Default">
+      <UniqueIdentifier>{f2f74718-6f8b-4d4d-96c9-358e512cb34f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="SmallPaint.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Line.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Triangle.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="PolyLine.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Rectangle.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Round_Rectangle.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Ellipse.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Chord.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Pie.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
-    <ClInclude Include="Arr_Fig.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
     <ClInclude Include="All_Figure.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Arr_Fig.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Chord.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Ellipse.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Line.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Pie.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Rectangle.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="PolyLine.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowControl.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="SmallPaint.h">
+    <ClInclude Include="FiguresControl.h">
       <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="Singleton.h">
+      <Filter>Заголовочные файлы\Templates</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Заголовочные файлы\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Заголовочные файлы\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="SmallPaint.h">
+      <Filter>Заголовочные файлы\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Заголовочные файлы\Default</Filter>
+    </ClInclude>
+    <ClInclude Include="Round_Rectangle.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Triangle.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Pen.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="All_Figure.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="Line.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="PolyLine.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="Rectangle.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
-    <ClCompile Include="Round_Rectangle.cpp">
-      <Filter>Файлы исходного кода</Filter>
+      <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
     <ClCompile Include="Ellipse.cpp">
-      <Filter>Файлы исходного кода</Filter>
+      <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
-    <ClCompile Include="Chord.cpp">
-      <Filter>Файлы исходного кода</Filter>
+    <ClCompile Include="Line.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
     <ClCompile Include="Pie.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="PolyLine.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Rectangle.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Round_Rectangle.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Triangle.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Chord.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowControl.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Файлы исходного кода\Default</Filter>
+    </ClCompile>
     <ClCompile Include="SmallPaint.cpp">
+      <Filter>Файлы исходного кода\Default</Filter>
+    </ClCompile>
+    <ClCompile Include="FiguresControl.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
   </ItemGroup>

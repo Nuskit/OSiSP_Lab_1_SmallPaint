@@ -2,35 +2,49 @@
 //
 
 #include "stdafx.h"
+#include <list>
 #include "SmallPaint.h"
 #include "Arr_Fig.h"
-#include <list>
+#include "WindowControl.h"
+#include "FiguresControl.h"
 
-VOID Create_Button(char *, int, int, int);
+enum
+{
+  HEIGH_CONTROL_PANEL = 100
+};
+
 void Clear_Holst();
 void  AddFigire_in_map();
-POINT Get_Current_Cursor_Pos(HWND);
+POINT getCurrentCursorPosisiton(HWND);
+void PaintTimerRedraw(HWND);
 
 using namespace std;
+using namespace Figures;
 
 // Глобальные переменные:
 HINSTANCE hInst;								// текущий экземпляр
 TCHAR szTitle[MAX_LOADSTRING];					// Текст строки заголовка
 TCHAR szWindowClass[MAX_LOADSTRING];			// имя класса главного окна
+TCHAR szWindowClassPaint[MAX_LOADSTRING];
+TCHAR szWindowClassFigures[MAX_LOADSTRING];
 HWND hWnd;
 HDC hdc;
 HBRUSH hBrush;
-ObjectFigure ObjectFigures;
-Figure *CurrentFigure = NULL;
-list <unique_ptr<Figure>> List_Figure;
+//ObjectFigure ObjectFigures;
+//Figure *CurrentFigure = NULL;
+//list <unique_ptr<Figure>> List_Figure;
 
 BOOL Cur_Drawing = false;
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
+ATOM        RegisterChildClass(WNDCLASSEX);
+ATOM        RegisterControlPanel(WNDCLASSEX);
+ATOM        RegisterPaintZone(WNDCLASSEX);
+
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
-VOID CreateControlPanels(HWND,HINSTANCE);
+VOID createControlPanels(HWND,HINSTANCE);
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -95,8 +109,11 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
   wcex.lpszClassName = szWindowClass;
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
+  RegisterChildClass(wcex);
   return RegisterClassEx(&wcex);
 }
+
+
 
 //
 //   ФУНКЦИЯ: InitInstance(HINSTANCE, int)
@@ -110,23 +127,14 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 //
 BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
-
-
   hInst = hInstance; // Сохранить дескриптор экземпляра в глобальной переменной
 
   hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
-    CW_USEDEFAULT, 0, CW_USEDEFAULT, 0, NULL, NULL, hInstance, NULL);
+    CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   if (!hWnd)
   {
     return FALSE;
-  }
-
-  char *NameButton[Number_Button] = { "Отрезок", "Треугольник", "Многоугольник", "Прямоугольник", "Окр. прямоугольник", "Эллипс", "Сегмент", "Сектор" };
-  int ID_Button[Number_Button] = { ID_BUTTON_1, ID_BUTTON_2, ID_BUTTON_3, ID_BUTTON_4, ID_BUTTON_5, ID_BUTTON_6, ID_BUTTON_7, ID_BUTTON_8 };
-  for (int i = 0; i < Number_Button; i++)
-  {
-    Create_Button(NameButton[i], 10, 10 + HEIGH_BUTTON * i, ID_Button[i]);
   }
 
   hdc = GetWindowDC(hWnd);
@@ -156,43 +164,38 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  PAINTSTRUCT ps;
-  HDC hdc;
-
   switch (message)
   {
   case WM_CREATE:
   {
-    HINSTANCE hInst = ((LPCREATESTRUCT)lParam)->hInstance;
-    CreateControlPanels(hWnd,hInst);
+    RECT windowRect;
+    GetClientRect(hWnd, &windowRect);
+    CreateWindow(szWindowClassFigures, NULL, WS_CHILDWINDOW | WS_VISIBLE,
+      windowRect.left, 0, windowRect.right, HEIGH_CONTROL_PANEL, hWnd, NULL,
+      (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), 
+      NULL);
+
+    CreateWindow(szWindowClassPaint, NULL, WS_CHILDWINDOW | WS_VISIBLE,
+      windowRect.left, HEIGH_CONTROL_PANEL, windowRect.right, windowRect.bottom-HEIGH_CONTROL_PANEL, hWnd, NULL,
+      (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
+      NULL);
   }
   break;
 
-  case WM_COMMAND:
-    switch (wParam)
-    {
-    default:
-      ObjectFigures.SetFigure(wParam);
-      SetFocus(hWnd);
-      break;
-    }
-    break;
   case WM_PAINT:
+    PAINTSTRUCT ps;
+    HDC hdc;
     hdc = BeginPaint(hWnd, &ps);
-
-    for (const auto &List_fig : List_Figure)
-    {
-      List_fig->Draw_figure();
-    }
     EndPaint(hWnd, &ps);
     break;
   case WM_DESTROY:
   {
-    List_Figure.clear();
+    //List_Figure.clear();
     DeleteBrush(hBrush);
     PostQuitMessage(0);
   }
     break;
+  break;
   case WM_KEYDOWN:
     switch (wParam)
     {
@@ -200,100 +203,117 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
       break;
     case VK_BACK:
-      if (!List_Figure.empty() && !Cur_Drawing)
-      {
-        List_Figure.pop_back();
-        Clear_Holst();
-      }
+      //if (!List_Figure.empty() && !Cur_Drawing)
+      //{
+      //  List_Figure.pop_back();
+      //  Clear_Holst();
+      //}
       break;
-    }
-    break;
-  case WM_LBUTTONDOWN:
-  {
-    POINT  pt = Get_Current_Cursor_Pos(hWnd);
-    if (pt.x > WIDTH_BUTTON + 25)
-      if (!Cur_Drawing)
-      {
-        CurrentFigure = ObjectFigures.create();
-        if (CurrentFigure != NULL)
-        {
-          CurrentFigure->Set_Start_Position(pt.x, pt.y);
-          Cur_Drawing = true;
-          //				List_Figure.push_back(CurrentFigure);
-        }
-      }
-      else if (CurrentFigure != NULL)
-      {
-        CurrentFigure->Set_End_Position(pt.x, pt.y);
-        Cur_Drawing = false;
-      }
-
-  }
-  break;
-
-  case WM_RBUTTONDOWN:
-    if (CurrentFigure != NULL&&Cur_Drawing)
-    {
-      POINT  pt = Get_Current_Cursor_Pos(hWnd);
-      if (pt.x > WIDTH_BUTTON + 25)
-        CurrentFigure->Add_New_Point(pt.x, pt.y);
-    }
-    break;
-  case WM_MBUTTONDOWN:
-    Cur_Drawing = false;
-    break;
-  case WM_MOUSEMOVE:
-    if (CurrentFigure != NULL&&Cur_Drawing)
-    {
-      POINT  pt = Get_Current_Cursor_Pos(hWnd);
-      if (pt.x > WIDTH_BUTTON + 25)
-        CurrentFigure->Set_End_Position(pt.x, pt.y);
-    }
-    break;
-  case WM_TIMER:
-    if (Cur_Drawing)
-    {
-      //Clear_Holst();
     }
     break;
   default:
     return DefWindowProc(hWnd, message, wParam, lParam);
   }
-  int a = sizeof(char);
   return 0;
 }
 
-VOID CreateControlPanels(HWND parentHwnd, HINSTANCE hInstance)
+LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  //CreateWindow(
-  //  "BUTTON",
-  //  "Figures",
-  //  WS_CHILD | WS_VISIBLE | BS_GROUPBOX,
-  //  4, 4, 
-  //  800, 500,
-  //  parentHwnd, (HMENU)0, 
-  //  hInstance, 
-  //  NULL);
+  switch (message)
+  {
+  case WM_CREATE:
+  {
+    WindowControl::Instance().createControlPanel(hWnd);
+  }
+  break;
+  case WM_PAINT:
+  {
+    PAINTSTRUCT ps;
+    HDC hdc;
+    hdc = BeginPaint(hWnd, &ps);
+    EndPaint(hWnd, &ps);
+  }
+    break;
+  case WM_COMMAND:
+    switch (wParam)
+    {
+    default:
+      FiguresControl::Instance().setFigure(wParam);
+      //ObjectFigures.setFigure(wParam);
+      SetFocus(GetParent(hWnd));
+      break;
+    }
+    break;
+  default:
+    return DefWindowProc(hWnd, message, wParam, lParam);
+  }
+  return 0;
 }
 
-VOID Create_Button(char *Text_on_button, int start_x, int start_y, int ID_MENU)
+LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-  CreateWindow(
-    "BUTTON",   // predefined class 
-    Text_on_button,       // button text 
-    WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON,  // styles 
-    // Size and position values are given explicitly, because 
-    // the CW_USEDEFAULT constant gives zero values for buttons. 
-    start_x,         // starting x position 
-    start_y,         // starting y position 
-    WIDTH_BUTTON,        // button width 
-    HEIGH_BUTTON,        // button height 
-    hWnd,       // parent window 
-    (HMENU)ID_MENU,       // No menu 
-    (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
-    NULL);      // pointer not needed
-}
+  switch (message)
+  {
+  case WM_PAINT:
+  {
+    PAINTSTRUCT ps;
+    HDC hdc/*,hdcOld*/;
+	/*	HBITMAP hBitmap;*/
+    hdc = BeginPaint(hWnd, &ps);
+		//hdcOld = CreateCompatibleDC(hdc);
+		//hBitmap = CreateCompatibleBitmap(hdc,
+		//	ps.rcPaint.right - ps.rcPaint.left,
+		//	ps.rcPaint.bottom - ps.rcPaint.top);
+		//SelectObject(hdcOld, hBitmap);
 
+		//SetBkMode(hdcOld, TRANSPARENT);
+		//FillRect(hdc, &ps.rcPaint, (HBRUSH)COLOR_WINDOW);
+    FiguresControl::Instance().drawFigures(hdc,ps.rcPaint);
+		
+		//DeleteDC(hdcOld);
+		//DeleteObject(hBitmap);
+		EndPaint(hWnd, &ps);
+  }
+  break;
+  case WM_SETFOCUS:
+  {
+    SetFocus(GetParent(hWnd));
+  }
+  break;
+  case WM_LBUTTONDOWN:
+  {
+    FiguresControl::Instance().startDrawing(getCurrentCursorPosisiton(hWnd));
+		if (FiguresControl::Instance().isDrawing())
+		{
+			SetCapture(hWnd);
+			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
+		}
+  }
+  break;
+  case WM_LBUTTONUP:
+  {
+    if (FiguresControl::Instance().isDrawing())
+    {
+      ReleaseCapture();
+			KillTimer(hWnd, IDC_TIMER_PAINT);
+      FiguresControl::Instance().endDrawing();
+			PaintTimerRedraw(hWnd);
+    }
+  }
+  break;
+  case WM_MOUSEMOVE:
+    if (FiguresControl::Instance().isDrawing())
+      FiguresControl::Instance().changeDraw(getCurrentCursorPosisiton(hWnd));
+    break;
+  case WM_TIMER:
+		PaintTimerRedraw(hWnd);
+    break;
+
+  default:
+    return DefWindowProc(hWnd, message, wParam, lParam);
+  }
+  return 0;
+}
 
 void Clear_Holst()
 {
@@ -306,25 +326,56 @@ void Clear_Holst()
   UpdateWindow(hWnd);
 }
 
-POINT Get_Current_Cursor_Pos(HWND hWnd)
+POINT getCurrentCursorPosisiton(HWND hWnd)
 {
   POINT  pt;
   GetCursorPos(&pt);
   ScreenToClient(hWnd, &pt);
-
-  /*pt.y += 29;
-  pt.x += 8;*/
   return pt;
 }
 
 void  AddFigire_in_map()
 {
-  ObjectFigures.add<Lines>(ID_BUTTON_1);
-  ObjectFigures.add<Triangle>(ID_BUTTON_2);
-  ObjectFigures.add<PolyLine>(ID_BUTTON_3);
-  ObjectFigures.add<Rectangles>(ID_BUTTON_4);
-  ObjectFigures.add<RoundRectangles>(ID_BUTTON_5);
-  ObjectFigures.add<Ellipses>(ID_BUTTON_6);
-  ObjectFigures.add<Chords>(ID_BUTTON_7);
-  ObjectFigures.add<Pies>(ID_BUTTON_8);
+  //ObjectFigures.add<Lines>(ID_BUTTON_1);
+  //ObjectFigures.add<Triangle>(ID_BUTTON_2);
+  //ObjectFigures.add<PolyLine>(ID_BUTTON_3);
+  //ObjectFigures.add<Rectangles>(ID_BUTTON_4);
+  //ObjectFigures.add<RoundRectangles>(ID_BUTTON_5);
+  //ObjectFigures.add<Ellipses>(ID_BUTTON_6);
+  //ObjectFigures.add<Chords>(ID_BUTTON_7);
+  //ObjectFigures.add<Pies>(ID_BUTTON_8);
+}
+
+ATOM RegisterChildClass(WNDCLASSEX wndclass)
+{
+  wndclass.hIconSm = NULL;
+  wndclass.hIcon = NULL;
+  RegisterControlPanel(wndclass);
+  RegisterPaintZone(wndclass);
+  return RegisterClassEx(&wndclass);
+}
+
+ATOM RegisterControlPanel(WNDCLASSEX wndclass)
+{
+  LoadString(wndclass.hInstance, IDS_ChildFigures, szWindowClassFigures, MAX_LOADSTRING);
+  wndclass.lpfnWndProc = WndChildControlPanelProc;
+  wndclass.lpszClassName = szWindowClassFigures;
+  return RegisterClassEx(&wndclass);
+}
+
+ATOM RegisterPaintZone(WNDCLASSEX wndclass)
+{
+  LoadString(wndclass.hInstance, IDS_ChildPaint, szWindowClassPaint, MAX_LOADSTRING);
+  wndclass.lpfnWndProc = WndChildPaintZoneProc;
+  wndclass.lpszClassName = szWindowClassPaint;
+  return RegisterClassEx(&wndclass);
+}
+
+void PaintTimerRedraw(HWND hWnd)
+{
+	if (FiguresControl::Instance().isMustRedraw())
+	{
+		InvalidateRect(hWnd, &FiguresControl::Instance().RedrawZone(), true);
+		UpdateWindow(hWnd);
+	}
 }

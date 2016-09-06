@@ -1,15 +1,20 @@
 #pragma once
+
+#include "stdafx.h"
 #include "Chord.h"
 
-class Pies :protected Chords, public virtual Figure
+namespace Figures
 {
-public:
-	Pies() :Chords(){  }
-	void DrawPies();
-	void DrawPies(int, int);
-	void DrawPies(int, int, int, int);
-	void DrawPies(int, int, int, int, int, int, int, int);
+  class Pies :public Chords
+  {
+  public:
+    Pies() :Chords() {  }
+    void DrawPies();
+    void DrawPies(int, int);
+    void DrawPies(int, int, int, int);
+    void DrawPies(int, int, int, int, int, int, int, int);
 
-	void Draw_figure(){ DrawPies(); }
-	void Draw_figure(int x,int y){ DrawPies(x, y); }
-};
+    void drawFigure() { DrawPies(); }
+    void drawFigure(int x, int y) { DrawPies(x, y); }
+  };
+}

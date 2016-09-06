@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "All_figure.h"
+using namespace Figures;
 
 Brush::~Brush()
 {
@@ -48,4 +49,9 @@ void Brush::SetPen()
 HPEN Brush::GetHPEN()
 {
 	return hpen;
+}
+
+const bool Figure::isInRectZone(const RECT& rect)
+{
+	return UnionRect(&rectZoneBuffer, &rect, &getRectZone());
 }

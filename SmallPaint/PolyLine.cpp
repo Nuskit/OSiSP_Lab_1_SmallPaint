@@ -1,6 +1,7 @@
 #pragma once
 #include "stdafx.h"
 #include "PolyLine.h"
+using namespace Figures;
 
 void PolyLine::deletePos()
 {

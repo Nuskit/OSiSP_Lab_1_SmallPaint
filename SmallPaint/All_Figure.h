@@ -1,81 +1,86 @@
 #pragma once
 #include "stdafx.h"
 #include "SmallPaint.h"
+using namespace std;
 
-class Brush
+namespace Figures
 {
-protected:
-	int Type_Pen, Size;
-	COLORREF Current_Color;
-	HPEN hpen;
-	void Reuse_HPEN();
-public:
-	Brush();
-	Brush(int, int, COLORREF);
-	~Brush();
-	HPEN GetHPEN();
-	void SetColor(COLORREF);
-	void SetTypePen(int);
-	void SetPen();
-};
+  class Brush
+  {
+  protected:
+    int Type_Pen, Size;
+    COLORREF Current_Color;
+    HPEN hpen;
+    void Reuse_HPEN();
+  public:
+    Brush();
+    Brush(int, int, COLORREF);
+    ~Brush();
+    HPEN GetHPEN();
+    void SetColor(COLORREF);
+    void SetTypePen(int);
+    void SetPen();
+  };
 
 
-class Figure
-{
-protected:
-	Brush brush;
-public:
-	virtual void Draw_figure(int, int)=0;
-
-	virtual void Draw_figure()=0;
-	virtual void Set_Start_Position(int, int)=0;
-	virtual void Set_End_Position(int, int)=0;
-	virtual void Add_New_Point(int, int){};
-  virtual ~Figure() {};
-};
-
-class AbstractFigure
-{
-public:
-	virtual Figure* Create()=0;
-};
-
-template <class C>
-class FigureCreator : public AbstractFigure
-{
-public:
-	Figure* Create() { return new C(); }
-};
+  class Figure
+  {
+  protected:
+    Brush brush;
+		RECT rectZoneBuffer;
+  public:
+    virtual void drawFigure(HDC) = 0;
+    virtual void setStartPosition(int, int) = 0;
+    virtual void setEndPosition(int, int) = 0;
+		virtual const RECT& getRectZone() = 0;
+		virtual const bool isInRectZone(const RECT&);
+    virtual void addNewPoint(int, int) {};
+    virtual ~Figure() {};
+  };
 
 
-class ObjectFigure
-{
-protected:
-	typedef std::map<int, AbstractFigure*> FactoryMap;
-	FactoryMap Map_Figure;
-	int Current_id;
+  class AbstractFigure
+  {
+  public:
+    virtual Figure* create() = 0;
+  };
 
-public:
-	~ObjectFigure(){ Map_Figure.clear(); }
+  template <typename T>
+  class FigureCreator : public AbstractFigure
+  {
+  public:
+    Figure* create() { return new T(); }
+  };
 
-	template<class C>
-	void add(const int id)
-	{
-		FactoryMap::iterator Current_Position_it = Map_Figure.find(id);
-		if (Current_Position_it == Map_Figure.end())
-			Map_Figure[id] = new FigureCreator < C >() ;
-	}
+  class ObjectFigure
+  {
+  protected:
+    typedef std::map<int, std::unique_ptr<AbstractFigure>> FactoryMap;
+    FactoryMap mapFigure;
+    int idCurrentFigure;
+  public:
+    ~ObjectFigure() { mapFigure.clear(); }
 
-	Figure *create()
-	{
-		FactoryMap::iterator Current_Position_it = Map_Figure.find(Current_id);
-		if (Current_Position_it != Map_Figure.end())
-			return Current_Position_it->second->Create();
-		else
-			return NULL;
-	}
-	void SetFigure(int set_id)
-	{
-		Current_id = set_id;
-	}
-};
+    template<typename T>
+    void add(const int id)
+    {
+      FactoryMap::iterator iteratorPosition = mapFigure.find(id);
+      if (iteratorPosition == mapFigure.end())
+        mapFigure[id] = unique_ptr<AbstractFigure>(new FigureCreator < T >());
+    }
+
+    Figure *create()
+    {
+      FactoryMap::iterator iteratorPosition = mapFigure.find(idCurrentFigure);
+      if (iteratorPosition != mapFigure.end())
+        return iteratorPosition->second->create();
+      else
+        return NULL;
+    }
+
+    void setFigure(int idNewFigure)
+    {
+      idCurrentFigure = idNewFigure;
+    }
+  };
+}
