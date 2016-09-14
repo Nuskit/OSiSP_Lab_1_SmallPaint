@@ -121,7 +121,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
   hInst = hInstance; // —охранить дескриптор экземпл€ра в глобальной переменной
 
-  HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+  HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW| WS_MAXIMIZE,
     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   if (!hWnd)
@@ -147,6 +147,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static HWND paintZone;
   switch (message)
   {
   case WM_CREATE:
@@ -157,8 +158,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       windowRect.left, 0, windowRect.right, HEIGH_CONTROL_PANEL, hWnd, NULL,
       (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), 
       NULL);
-
-    CreateWindow(szWindowClassPaint, NULL, WS_CHILDWINDOW | WS_VISIBLE,
+		paintZone=CreateWindow(szWindowClassPaint, NULL, WS_CHILDWINDOW | WS_VISIBLE,
       windowRect.left, HEIGH_CONTROL_PANEL, windowRect.right, windowRect.bottom-HEIGH_CONTROL_PANEL, hWnd, NULL,
       (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
       NULL);
@@ -169,7 +169,11 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     PostQuitMessage(0);
   }
     break;
-  break;
+	case WM_MOUSEWHEEL:
+	{
+		PostMessage(paintZone, message, wParam, lParam);
+	}
+	break;
   case WM_KEYDOWN:
     switch (wParam)
     {
@@ -204,13 +208,6 @@ LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam
     WindowControl::Instance().createControlPanel(hWnd);
   }
   break;
-  case WM_PAINT:
-  {
-    PAINTSTRUCT ps;
-    HDC hdc;
-    hdc = BeginPaint(hWnd, &ps);
-    EndPaint(hWnd, &ps);
-  }
     break;
   case WM_COMMAND:
     switch (wParam)
@@ -229,24 +226,57 @@ LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam
 
 LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
+	static float scale = 1;
+	static int xPosition=0,xStartPositon=0, yStartPositon=0,yPosition = 0;
   switch (message)
   {
+	case WM_CREATE:
+		FiguresControl::Instance().setDrawHwnd(hWnd);
+		break;
+	case WM_MBUTTONDOWN:
+		SetCapture(hWnd);
+		SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+		xPosition=xStartPositon = LOWORD(lParam);
+		yPosition=yStartPositon = HIWORD(lParam);
+		SetTimer(hWnd, IDC_TIMER_REDRAW, TIMER_PAINT_RATE, NULL);
+		break;
+	case WM_MBUTTONUP:
+		ReleaseCapture();
+		KillTimer(hWnd, IDC_TIMER_REDRAW);
+	case WM_MOUSEWHEEL:
+	{
+		SendMessage(hWnd, WM_LBUTTONUP, NULL, NULL);
+		int wheel = GET_WHEEL_DELTA_WPARAM(wParam);
+		if (wheel > 0 && scale < 5)
+			scale += 0.2;
+		else if (wheel<0 && scale>0.3)
+			scale -= 0.10;
+
+		InvalidateRect(hWnd, NULL, true);
+		UpdateWindow(hWnd);
+	}
+
   case WM_PAINT:
   {
     PAINTSTRUCT ps;
     HDC hdc,hdcOld;
     hdc = BeginPaint(hWnd, &ps);
+
 		hdcOld = CreateCompatibleDC(hdc);
 		RECT rect;
 		GetClientRect(hWnd, &rect);
+
 		HBITMAP hBitmap = CreateCompatibleBitmap(hdc, rect.right-rect.left, rect.bottom-rect.top);
 		SelectObject(hdcOld, hBitmap);
-
+		
 		SetBkMode(hdcOld, TRANSPARENT);
 		FillRect(hdcOld, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW+1));
-    FiguresControl::Instance().drawFigures(hdcOld,ps.rcPaint);
-		BitBlt(hdc, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hdcOld, 0, 0, SRCCOPY);
-		SelectObject(hdc, hdcOld);
+    FiguresControl::Instance().drawFigures(hdcOld, ps.rcPaint, hWnd);
+		static float i = 1;
+		FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+		StretchBlt(hdc, 0, 0, rect.right*scale, rect.bottom*scale, hdcOld, xStartPositon- xPosition, yStartPositon- yPosition, rect.right, rect.bottom, SRCCOPY);
+//		BitBlt(hdc, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hdcOld1, 0, 0, SRCCOPY);
+		i += 0.05;
 		DeleteDC(hdcOld);
 		DeleteObject(hBitmap);
 		EndPaint(hWnd, &ps);
@@ -264,6 +294,10 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
     FiguresControl::Instance().startDrawing(getCurrentCursorPosisiton(hWnd));
 		if (FiguresControl::Instance().isDrawing())
 		{
+			scale = 1;
+			xStartPositon = yStartPositon = xPosition = yPosition = 0;
+			InvalidateRect(hWnd, NULL, true);
+			UpdateWindow(hWnd);
 			SetCapture(hWnd);
 			SetCursor(LoadCursor(NULL,IDC_CROSS));
 			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
@@ -284,9 +318,23 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   case WM_MOUSEMOVE:
     if (FiguresControl::Instance().isDrawing())
       FiguresControl::Instance().changeDraw(getCurrentCursorPosisiton(hWnd));
+		else
+		{
+			xPosition = LOWORD(lParam);
+			yPosition = HIWORD(lParam);
+		}
     break;
   case WM_TIMER:
-		PaintTimerRedraw(hWnd);
+		switch (wParam)
+		{
+		case IDC_TIMER_REDRAW:
+			InvalidateRect(hWnd, NULL, true);
+			UpdateWindow(hWnd);
+			break;
+		case IDC_TIMER_PAINT:
+			PaintTimerRedraw(hWnd);
+			break;
+		}
     break;
 
   default:
@@ -378,8 +426,7 @@ VOID workWithPanelCommand(HWND hWnd,WPARAM wParam)
 		break;
 	case IDM_Save:
 		RECT rect;
-		GetClientRect(hWnd, &rect);
-		FiguresControl::Instance().saveEncFile(WindowControl::Instance().saveFile(hWnd), rect);
+		FiguresControl::Instance().saveEncFile(WindowControl::Instance().saveFile(hWnd), hWnd);
 		break;
 	}
 }

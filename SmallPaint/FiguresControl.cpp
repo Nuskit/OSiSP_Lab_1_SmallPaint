@@ -7,15 +7,28 @@
 
 using namespace Figures;
 
+void FiguresControl::setDrawHwnd(const HWND hwnd)
+{
+	this->hWnd = hwnd;
+}
+
 VOID FiguresControl::setFigure(int idFigure)
 {
   objectFigures.setFigure(idFigure);
 }
 
-VOID FiguresControl::drawFigures(HDC hdc,RECT rect)
+VOID FiguresControl::drawFigures(HDC hdc,RECT rect,const HWND hWnd)
 {
+	//SaveDC(hdc);
+	//setMapMode(hdc);
+	//DPtoLP(hdc, (PPOINT)&rect, 2);
+	//RestoreDC(hdc, -1);
 	if (metaFile)
-		PlayEnhMetaFile(hdc, metaFile, NULL);
+	{
+		RECT trect;
+		GetClientRect(hWnd,&trect);
+		PlayEnhMetaFile(hdc, metaFile, &trect);
+	}
 	for (const auto &figureInList : listFigures)
 		figureInList->drawFigure(hdc,rect);
 	if (isDrawing())
@@ -119,19 +132,35 @@ void FiguresControl::openEncFile(const char *fullPath)
 	metaFile=GetEnhMetaFile(fullPath);
 }
 
-void FiguresControl::saveEncFile(const char *fullPath, const RECT& rect)
+void FiguresControl::saveEncFile(const char *fullPath, const HWND hWnd)
 {
+	RECT rect;
+	GetClientRect(this->hWnd, &rect);
 	HDC hdc=CreateEnhMetaFile(NULL, fullPath, NULL, NULL);
 
 	if (metaFile)
 	{
-		PlayEnhMetaFile(hdc, metaFile, NULL);
+
+		PlayEnhMetaFile(hdc, metaFile, &rect);
 	}
 
 	for (auto figure : listFigures)
 		figure->drawFigure(hdc);
 
 	DeleteEnhMetaFile(CloseEnhMetaFile(hdc));
+}
+
+void FiguresControl::setMapMode(HDC hdc, const int mapMode)
+{
+	SetMapMode(hdc, mapMode);
+	static int i=0;
+	SIZE size;
+	//GetViewportExtEx(hdc, &size);
+	SetWindowExtEx(hdc, 1000+i, 1000+i, NULL);
+	//SetViewportExtEx(hdc, size.cx, size.cy, NULL);
+	SetViewportOrgEx(hdc, 100+i / 2, 100+i / 2, NULL);
+	i++;
+	
 }
 
 COLORREF FiguresControl::getColor(COLORREF color)

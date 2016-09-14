@@ -13,8 +13,9 @@ using namespace Figures;
 class FiguresControl// :public Templates::Singleton<FiguresControl>
 {  
 public:
+	void setDrawHwnd(const HWND);
   VOID setFigure(int);
-  VOID drawFigures(HDC,RECT);
+  VOID drawFigures(HDC,RECT,const HWND);
   VOID startDrawing(POINT);
   VOID endDrawing();
   VOID changeDraw(POINT);
@@ -26,7 +27,8 @@ public:
 	void chooseLineColor();
 	void chooseFillColor(const bool);
 	void openEncFile(const char*);
-	void saveEncFile(const char*,const RECT&);
+	void saveEncFile(const char*,const HWND);
+	void setMapMode(HDC, const int = MM_ISOTROPIC);
 
   static FiguresControl& Instance()
   {
@@ -50,4 +52,5 @@ private:
 	shared_ptr<AbstractDrawObject> currentFigure;
   RECT drawZone[2];
 	Brush brush;
+	HWND hWnd;
 };
