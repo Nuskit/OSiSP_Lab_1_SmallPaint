@@ -126,41 +126,34 @@ void FiguresControl::chooseFillColor(const bool isHollow)
 
 void FiguresControl::openEncFile(const char *fullPath)
 {
-	if (metaFile)
-		DeleteEnhMetaFile(metaFile);
-	listFigures.clear();
-	metaFile=GetEnhMetaFile(fullPath);
+	if (fullPath)
+	{
+		if (metaFile)
+			DeleteEnhMetaFile(metaFile);
+		listFigures.clear();
+		metaFile = GetEnhMetaFile(fullPath);
+	}
 }
 
 void FiguresControl::saveEncFile(const char *fullPath, const HWND hWnd)
 {
-	RECT rect;
-	GetClientRect(this->hWnd, &rect);
-	HDC hdc=CreateEnhMetaFile(NULL, fullPath, NULL, NULL);
-
-	if (metaFile)
+	if (fullPath)
 	{
+		RECT rect;
+		GetClientRect(this->hWnd, &rect);
+		HDC hdc = CreateEnhMetaFile(NULL, fullPath, NULL, NULL);
 
-		PlayEnhMetaFile(hdc, metaFile, &rect);
+		if (metaFile)
+		{
+
+			PlayEnhMetaFile(hdc, metaFile, &rect);
+		}
+
+		for (auto figure : listFigures)
+			figure->drawFigure(hdc);
+
+		DeleteEnhMetaFile(CloseEnhMetaFile(hdc));
 	}
-
-	for (auto figure : listFigures)
-		figure->drawFigure(hdc);
-
-	DeleteEnhMetaFile(CloseEnhMetaFile(hdc));
-}
-
-void FiguresControl::setMapMode(HDC hdc, const int mapMode)
-{
-	SetMapMode(hdc, mapMode);
-	static int i=0;
-	SIZE size;
-	//GetViewportExtEx(hdc, &size);
-	SetWindowExtEx(hdc, 1000+i, 1000+i, NULL);
-	//SetViewportExtEx(hdc, size.cx, size.cy, NULL);
-	SetViewportOrgEx(hdc, 100+i / 2, 100+i / 2, NULL);
-	i++;
-	
 }
 
 COLORREF FiguresControl::getColor(COLORREF color)

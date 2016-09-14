@@ -81,7 +81,8 @@ const char* WindowControl::openFile(HWND hWnd)
 	openFile.nMaxFile = sizeof(fullPath);
 	openFile.lpstrTitle = "Open file...";
 	openFile.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST;
-	GetOpenFileName(&openFile);
+	if (!GetOpenFileName(&openFile))
+		return NULL;
 	return fullPath;
 }
 
@@ -104,6 +105,7 @@ const char* WindowControl::saveFile(HWND hWnd)
 	saveFile.nMaxFile = sizeof(fullPath);
 	saveFile.lpstrTitle = "Save file as...";
 	saveFile.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_EXPLORER;
-	GetSaveFileName(&saveFile);
+	if (!GetSaveFileName(&saveFile))
+		return NULL;
 	return fullPath;
 }

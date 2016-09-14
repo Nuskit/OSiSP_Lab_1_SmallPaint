@@ -28,7 +28,6 @@ public:
 	void chooseFillColor(const bool);
 	void openEncFile(const char*);
 	void saveEncFile(const char*,const HWND);
-	void setMapMode(HDC, const int = MM_ISOTROPIC);
 
   static FiguresControl& Instance()
   {
