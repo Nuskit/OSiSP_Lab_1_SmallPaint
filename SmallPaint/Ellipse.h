@@ -1,11 +1,11 @@
 #pragma once
 
 #include "stdafx.h"
-#include "All_Figure.h"
+#include "AbstractDrawObject.h"
 
 namespace Figures
 {
-  class Ellipses :public Figure
+  class Ellipses :public AbstractDrawObject
   {
     void deletePos();
   protected:

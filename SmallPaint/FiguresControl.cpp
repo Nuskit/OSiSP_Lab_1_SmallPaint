@@ -2,7 +2,8 @@
 
 #include "stdafx.h"
 #include "FiguresControl.h"
-#include "Arr_Fig.h"
+#include "LibraryDrawObject.h"
+#include "SmallPaint.h"
 
 using namespace Figures;
 
@@ -13,11 +14,10 @@ VOID FiguresControl::setFigure(int idFigure)
 
 VOID FiguresControl::drawFigures(HDC hdc,RECT rect)
 {
+	if (metaFile)
+		PlayEnhMetaFile(hdc, metaFile, NULL);
 	for (const auto &figureInList : listFigures)
-	{
-		if (figureInList->isInRectZone(rect))
-			figureInList->drawFigure(hdc);
-	}
+		figureInList->drawFigure(hdc,rect);
 	if (isDrawing())
 		ChangeStartDrawZone();
 }
@@ -55,6 +55,7 @@ bool FiguresControl::createNewFigure(POINT position)
   currentFigure.reset(objectFigures.create());
   if (currentFigure != NULL)
   {
+		currentFigure->setFillBrush(brush);
     currentFigure->setStartPosition(position.x, position.y);
 		listFigures.push_back(currentFigure);
   }
@@ -88,13 +89,74 @@ const RECT& FiguresControl::RedrawZone() const
 FiguresControl::~FiguresControl()
 {
   listFigures.clear();
+	if (metaFile)
+		DeleteObject(metaFile);
+}
+
+void FiguresControl::setWidthLine(int value)
+{
+	brush.setWidthPen(value);
+}
+
+void FiguresControl::chooseLineColor()
+{
+	brush.setColor(getColor(brush.getColor()));
+}
+
+void FiguresControl::chooseFillColor(const bool isHollow)
+{
+	if (!isHollow)
+		brush.setFillColor();
+	else
+		brush.setFillColor(getColor(brush.getFillColor()));
+}
+
+void FiguresControl::openEncFile(const char *fullPath)
+{
+	if (metaFile)
+		DeleteEnhMetaFile(metaFile);
+	listFigures.clear();
+	metaFile=GetEnhMetaFile(fullPath);
+}
+
+void FiguresControl::saveEncFile(const char *fullPath, const RECT& rect)
+{
+	HDC hdc=CreateEnhMetaFile(NULL, fullPath, NULL, NULL);
+
+	if (metaFile)
+	{
+		PlayEnhMetaFile(hdc, metaFile, NULL);
+	}
+
+	for (auto figure : listFigures)
+		figure->drawFigure(hdc);
+
+	DeleteEnhMetaFile(CloseEnhMetaFile(hdc));
+}
+
+COLORREF FiguresControl::getColor(COLORREF color)
+{
+	CHOOSECOLOR cc;
+	COLORREF crCustColors[16];
+	cc.lStructSize = sizeof(CHOOSECOLOR);
+	cc.hwndOwner = NULL;
+	cc.hInstance = NULL;
+	cc.rgbResult = color;
+	cc.lpCustColors = crCustColors;
+	cc.Flags = CC_RGBINIT | CC_FULLOPEN;
+	cc.lCustData = 0L;
+	cc.lpfnHook = NULL;
+	cc.lpTemplateName = NULL;
+	if (ChooseColor(&cc))
+		color = cc.rgbResult;
+	return color;
 }
 
 void FiguresControl::addDefaultFigures()
 {
   objectFigures.add<Lines>(IDC_ID_BUTTON_Line);
   //objectFigures.add<Triangle>(IDC_ID_BUTTON_Lin);
-  //objectFigures.add<PolyLine>(ID_BUTTON_3);
+  objectFigures.add<PolyLine>(IDC_ID_BUTTON_Polyline);
   objectFigures.add<Rectangles>(IDC_ID_BUTTON_Rectangle);
   //objectFigures.add<RoundRectangles>(ID_BUTTON_5);
   objectFigures.add<Ellipses>(IDC_ID_BUTTON_Ellipse);
@@ -102,7 +164,7 @@ void FiguresControl::addDefaultFigures()
   //objectFigures.add<Pies>(ID_BUTTON_8);
 }
 
-FiguresControl::FiguresControl() :isNowDrawing(false), objectFigures(), listFigures(), currentFigure(nullptr)
+FiguresControl::FiguresControl() :isNowDrawing(false), objectFigures(), metaFile(NULL),listFigures(), currentFigure(nullptr)
 {
   addDefaultFigures();
 }

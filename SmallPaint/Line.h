@@ -1,11 +1,11 @@
 #pragma once
 
 #include "stdafx.h"
-#include "All_Figure.h"
+#include "AbstractDrawObject.h"
 
 namespace Figures
 {
-  class Lines :public Figure
+  class Lines :public AbstractDrawObject
   {
   protected:
     int x1, y1, x2, y2;

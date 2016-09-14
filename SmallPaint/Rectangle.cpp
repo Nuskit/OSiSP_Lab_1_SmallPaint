@@ -5,35 +5,36 @@ using namespace Figures;
 
 Rectangles::Rectangles()
 {
-	size = 2;
-	x = y = NULL;
-	SetSize(size);
+	points.resize(2);
 }
 
 void Rectangles::drawRectangles(HDC hdc)
 {
-	brush.SetPen();
-	HGDIOBJ lastBrush = SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));
-	Rectangle(hdc, x[0], y[0], x[1], y[1]);
-	SelectObject(hdc, lastBrush);
+	Rectangle(hdc, points[0].x, points[0].y, points[1].x, points[1].y);
 }
 
-void Figures::Rectangles::drawFigure(HDC hdc)
+void Rectangles::drawFigure(HDC hdc)
 {
   drawRectangles(hdc);
 }
 
-  void Rectangles::setEndPosition(int new_x2, int new_y2)
+void Rectangles::setEndPosition(int new_x2, int new_y2)
 {
-	x[1] = new_x2;
-	y[1] = new_y2;
+	points[1].x = new_x2;
+	points[1].y = new_y2;
 }
 
-	const RECT& Rectangles::getRectZone()
-	{
-		rectZoneBuffer.bottom = (y[0] > y[1] ? y[0] : y[1]) + 2;
-		rectZoneBuffer.left = (x[0] > x[1] ? x[1] : x[0]) - 2;
-		rectZoneBuffer.right = (x[0] > x[1] ? x[0] : x[1]) + 2;
-		rectZoneBuffer.top = (y[0] > y[1] ? y[1] : y[0]) - 2;
-		return rectZoneBuffer;
-	}
+void Rectangles::setStartPosition(int x, int y)
+{
+	points[0].x= points[1].x = x;
+	points[0].y= points[1].y = y;
+}
+
+const RECT& Rectangles::getRectZone()
+{
+	rectZoneBuffer.bottom = (points[0].y > points[1].y ? points[0].y : points[1].y) + brush->getWidthPen();
+	rectZoneBuffer.left = (points[0].x > points[1].x ? points[1].x : points[0].x) - brush->getWidthPen();
+	rectZoneBuffer.right = (points[0].x > points[1].x ? points[0].x : points[1].x) + brush->getWidthPen();
+	rectZoneBuffer.top = (points[0].y > points[1].y ? points[1].y : points[0].y) - brush->getWidthPen();
+	return rectZoneBuffer;
+}

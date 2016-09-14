@@ -1,61 +1,49 @@
 #pragma once
 #include "stdafx.h"
-#include "SmallPaint.h"
+#include "Brush.h"
+
 using namespace std;
+
+class Brush;
 
 namespace Figures
 {
-  class Brush
+  class AbstractDrawObject
   {
   protected:
-    int Type_Pen, Size;
-    COLORREF Current_Color;
-    HPEN hpen;
-    void Reuse_HPEN();
-  public:
-    Brush();
-    Brush(int, int, COLORREF);
-    ~Brush();
-    HPEN GetHPEN();
-    void SetColor(COLORREF);
-    void SetTypePen(int);
-    void SetPen();
-  };
-
-
-  class Figure
-  {
-  protected:
-    Brush brush;
+    shared_ptr<Brush> brush;
 		RECT rectZoneBuffer;
   public:
-    virtual void drawFigure(HDC) = 0;
+		virtual void drawFigure(HDC) {};
+		void drawFigure(HDC, const RECT&);
     virtual void setStartPosition(int, int) = 0;
     virtual void setEndPosition(int, int) = 0;
 		virtual const RECT& getRectZone() = 0;
-		virtual const bool isInRectZone(const RECT&);
+		const bool isInRectZone(const RECT&);
     virtual void addNewPoint(int, int) {};
-    virtual ~Figure() {};
+    virtual ~AbstractDrawObject();
+		void setFillBrush(const Brush&);
+		AbstractDrawObject();
   };
 
 
   class AbstractFigure
   {
   public:
-    virtual Figure* create() = 0;
+    virtual AbstractDrawObject* create() = 0;
   };
 
   template <typename T>
   class FigureCreator : public AbstractFigure
   {
   public:
-    Figure* create() { return new T(); }
+    AbstractDrawObject* create() { return new T(); }
   };
 
   class ObjectFigure
   {
   protected:
-    typedef std::map<int, std::unique_ptr<AbstractFigure>> FactoryMap;
+    typedef map<int, unique_ptr<AbstractFigure>> FactoryMap;
     FactoryMap mapFigure;
     int idCurrentFigure;
   public:
@@ -69,7 +57,7 @@ namespace Figures
         mapFigure[id] = unique_ptr<AbstractFigure>(new FigureCreator < T >());
     }
 
-    Figure *create()
+    AbstractDrawObject *create()
     {
       FactoryMap::iterator iteratorPosition = mapFigure.find(idCurrentFigure);
       if (iteratorPosition != mapFigure.end())

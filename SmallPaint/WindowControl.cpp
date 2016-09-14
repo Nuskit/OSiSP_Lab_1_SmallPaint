@@ -43,8 +43,8 @@ HWND WindowControl::createPanelFiguresParent(HWND hWnd) const
 VOID WindowControl::createPanelFiguresButtons(HWND hWnd) const
 {
   std::list<int> allButtonsID{
-    IDC_ID_BUTTON_Pen, IDC_ID_BUTTON_Line, IDC_ID_BUTTON_Rectangle,
-    IDC_ID_BUTTON_Ellipse, IDC_ID_BUTTON_Text };
+    IDC_ID_BUTTON_Pen, IDC_ID_BUTTON_Line, IDC_ID_BUTTON_Polyline, 
+		IDC_ID_BUTTON_Rectangle, IDC_ID_BUTTON_Ellipse, IDC_ID_BUTTON_Text };
   TCHAR nameButton[MAX_LOADSTRING];
   int i = 0;
   for (auto &idButton : allButtonsID)
@@ -70,4 +70,40 @@ HWND WindowControl::createButton(const HWND hWnd, const char* name, int idButton
     (HMENU)idButton,       // No menu 
     (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE),
     NULL);      // pointer not needed
+}
+
+const char* WindowControl::openFile(HWND hWnd)
+{
+	static char fullPath[256] = { 0 };
+	OPENFILENAME openFile;
+	workWithFile(openFile, hWnd);
+	openFile.lpstrFile = fullPath;
+	openFile.nMaxFile = sizeof(fullPath);
+	openFile.lpstrTitle = "Open file...";
+	openFile.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST|OFN_PATHMUSTEXIST;
+	GetOpenFileName(&openFile);
+	return fullPath;
+}
+
+void WindowControl::workWithFile(OPENFILENAME& file,HWND hWnd)
+{
+	ZeroMemory(&file, sizeof(OPENFILENAME));
+	file.lStructSize = sizeof(OPENFILENAME);
+	file.hwndOwner = hWnd;
+	file.hInstance = (HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE);
+	file.lpstrFilter = "Metafile (*.emf)\0*.emf\0Все файлы (*.*)\0*.*\0";
+	file.nFilterIndex = 1;
+}
+
+const char* WindowControl::saveFile(HWND hWnd)
+{
+	static char fullPath[256] = { 0 };
+	OPENFILENAME saveFile;
+	workWithFile(saveFile,hWnd);
+	saveFile.lpstrFile = fullPath;
+	saveFile.nMaxFile = sizeof(fullPath);
+	saveFile.lpstrTitle = "Save file as...";
+	saveFile.Flags = OFN_PATHMUSTEXIST | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY | OFN_EXPLORER;
+	GetSaveFileName(&saveFile);
+	return fullPath;
 }

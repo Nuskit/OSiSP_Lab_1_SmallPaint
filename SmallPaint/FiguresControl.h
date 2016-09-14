@@ -2,7 +2,7 @@
 
 #include "stdafx.h"
 //#include "Singleton.h"
-#include "All_Figure.h"
+#include "AbstractDrawObject.h"
 #include "DrawControl.h"
 
 
@@ -22,7 +22,11 @@ public:
 	const bool isMustRedraw();
   const RECT& RedrawZone() const;
   ~FiguresControl();
-
+	void setWidthLine(int);
+	void chooseLineColor();
+	void chooseFillColor(const bool);
+	void openEncFile(const char*);
+	void saveEncFile(const char*,const RECT&);
 
   static FiguresControl& Instance()
   {
@@ -31,6 +35,7 @@ public:
   }
 
 private:
+	COLORREF getColor(COLORREF);
   void addDefaultFigures();
   FiguresControl();
   bool createNewFigure(POINT);
@@ -40,7 +45,9 @@ private:
 
   bool isNowDrawing;
   ObjectFigure objectFigures;
-  list <shared_ptr<Figure>> listFigures;
-	shared_ptr<Figure> currentFigure;
+	HENHMETAFILE metaFile;
+  list <shared_ptr<AbstractDrawObject>> listFigures;
+	shared_ptr<AbstractDrawObject> currentFigure;
   RECT drawZone[2];
+	Brush brush;
 };

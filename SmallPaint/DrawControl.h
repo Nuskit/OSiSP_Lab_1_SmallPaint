@@ -1,7 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
-#include "All_Figure.h"
+#include "AbstractDrawObject.h"
 using namespace Figures;
 
 class DrawControl

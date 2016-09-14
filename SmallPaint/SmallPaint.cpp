@@ -4,7 +4,7 @@
 #include "stdafx.h"
 #include <list>
 #include "SmallPaint.h"
-#include "Arr_Fig.h"
+#include "LibraryDrawObject.h"
 #include "WindowControl.h"
 #include "FiguresControl.h"
 
@@ -13,8 +13,6 @@ enum
   HEIGH_CONTROL_PANEL = 100
 };
 
-void Clear_Holst();
-void  AddFigire_in_map();
 POINT getCurrentCursorPosisiton(HWND);
 void PaintTimerRedraw(HWND);
 
@@ -27,14 +25,6 @@ TCHAR szTitle[MAX_LOADSTRING];					// Текст строки заголовка
 TCHAR szWindowClass[MAX_LOADSTRING];			// имя класса главного окна
 TCHAR szWindowClassPaint[MAX_LOADSTRING];
 TCHAR szWindowClassFigures[MAX_LOADSTRING];
-HWND hWnd;
-HDC hdc;
-HBRUSH hBrush;
-//ObjectFigure ObjectFigures;
-//Figure *CurrentFigure = NULL;
-//list <unique_ptr<Figure>> List_Figure;
-
-BOOL Cur_Drawing = false;
 
 // Отправить объявления функций, включенных в этот модуль кода:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -45,6 +35,8 @@ ATOM        RegisterPaintZone(WNDCLASSEX);
 BOOL				InitInstance(HINSTANCE, int);
 LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 VOID createControlPanels(HWND,HINSTANCE);
+VOID workWithPanelCommand(HWND ,WPARAM);
+
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -104,8 +96,8 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
   wcex.hInstance = hInstance;
   wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SmallPaint));
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-  wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
-  wcex.lpszMenuName = NULL;
+	wcex.hbrBackground = NULL;// (HBRUSH)(COLOR_WINDOW + 1);
+  wcex.lpszMenuName = MAKEINTRESOURCE(IDC_SmallPaint);
   wcex.lpszClassName = szWindowClass;
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
@@ -129,7 +121,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 {
   hInst = hInstance; // Сохранить дескриптор экземпляра в глобальной переменной
 
-  hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
+  HWND hWnd = CreateWindow(szWindowClass, szTitle, WS_OVERLAPPEDWINDOW,
     CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, NULL, NULL, hInstance, NULL);
 
   if (!hWnd)
@@ -137,15 +129,6 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
     return FALSE;
   }
 
-  hdc = GetWindowDC(hWnd);
-
-  hBrush = (HBRUSH)GetStockObject(HOLLOW_BRUSH);
-  SelectObject(hdc, hBrush);
-
-  AddFigire_in_map();
-
-
-  SetTimer(hWnd, 1, 40, NULL);
   ShowWindow(hWnd, nCmdShow);
   UpdateWindow(hWnd);
 
@@ -181,17 +164,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       NULL);
   }
   break;
-
-  case WM_PAINT:
-    PAINTSTRUCT ps;
-    HDC hdc;
-    hdc = BeginPaint(hWnd, &ps);
-    EndPaint(hWnd, &ps);
-    break;
   case WM_DESTROY:
   {
-    //List_Figure.clear();
-    DeleteBrush(hBrush);
     PostQuitMessage(0);
   }
     break;
@@ -211,6 +185,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       break;
     }
     break;
+
+	case WM_COMMAND:
+		workWithPanelCommand(hWnd,wParam);
+		break;
   default:
     return DefWindowProc(hWnd, message, wParam, lParam);
   }
@@ -239,7 +217,6 @@ LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam
     {
     default:
       FiguresControl::Instance().setFigure(wParam);
-      //ObjectFigures.setFigure(wParam);
       SetFocus(GetParent(hWnd));
       break;
     }
@@ -257,24 +234,26 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   case WM_PAINT:
   {
     PAINTSTRUCT ps;
-    HDC hdc/*,hdcOld*/;
-	/*	HBITMAP hBitmap;*/
+    HDC hdc,hdcOld;
     hdc = BeginPaint(hWnd, &ps);
-		//hdcOld = CreateCompatibleDC(hdc);
-		//hBitmap = CreateCompatibleBitmap(hdc,
-		//	ps.rcPaint.right - ps.rcPaint.left,
-		//	ps.rcPaint.bottom - ps.rcPaint.top);
-		//SelectObject(hdcOld, hBitmap);
+		hdcOld = CreateCompatibleDC(hdc);
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+		HBITMAP hBitmap = CreateCompatibleBitmap(hdc, rect.right-rect.left, rect.bottom-rect.top);
+		SelectObject(hdcOld, hBitmap);
 
-		//SetBkMode(hdcOld, TRANSPARENT);
-		//FillRect(hdc, &ps.rcPaint, (HBRUSH)COLOR_WINDOW);
-    FiguresControl::Instance().drawFigures(hdc,ps.rcPaint);
-		
-		//DeleteDC(hdcOld);
-		//DeleteObject(hBitmap);
+		SetBkMode(hdcOld, TRANSPARENT);
+		FillRect(hdcOld, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW+1));
+    FiguresControl::Instance().drawFigures(hdcOld,ps.rcPaint);
+		BitBlt(hdc, rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, hdcOld, 0, 0, SRCCOPY);
+		SelectObject(hdc, hdcOld);
+		DeleteDC(hdcOld);
+		DeleteObject(hBitmap);
 		EndPaint(hWnd, &ps);
   }
   break;
+	case WM_ERASEBKGND:
+		return 1;
   case WM_SETFOCUS:
   {
     SetFocus(GetParent(hWnd));
@@ -286,6 +265,7 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 		if (FiguresControl::Instance().isDrawing())
 		{
 			SetCapture(hWnd);
+			SetCursor(LoadCursor(NULL,IDC_CROSS));
 			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
 		}
   }
@@ -296,8 +276,8 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
     {
       ReleaseCapture();
 			KillTimer(hWnd, IDC_TIMER_PAINT);
-      FiguresControl::Instance().endDrawing();
 			PaintTimerRedraw(hWnd);
+			FiguresControl::Instance().endDrawing();
     }
   }
   break;
@@ -313,17 +293,6 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
     return DefWindowProc(hWnd, message, wParam, lParam);
   }
   return 0;
-}
-
-void Clear_Holst()
-{
-  static RECT rect;
-  GetClientRect(hWnd, &rect);
-
-  rect.left += WIDTH_BUTTON + 15;
-
-  InvalidateRect(hWnd, &rect, true);
-  UpdateWindow(hWnd);
 }
 
 POINT getCurrentCursorPosisiton(HWND hWnd)
@@ -348,6 +317,7 @@ void  AddFigire_in_map()
 
 ATOM RegisterChildClass(WNDCLASSEX wndclass)
 {
+	//wndclass.lpszMenuName = NULL;
   wndclass.hIconSm = NULL;
   wndclass.hIcon = NULL;
   RegisterControlPanel(wndclass);
@@ -377,5 +347,39 @@ void PaintTimerRedraw(HWND hWnd)
 	{
 		InvalidateRect(hWnd, &FiguresControl::Instance().RedrawZone(), true);
 		UpdateWindow(hWnd);
+	}
+}
+
+VOID workWithPanelCommand(HWND hWnd,WPARAM wParam)
+{
+	int wmId = LOWORD(wParam);
+	int wmEvent = HIWORD(wParam);
+	switch (wmId)
+	{
+	case ID_WIDTHLINE_1PX:
+	case ID_WIDTHLINE_2PX:
+	case ID_WIDTHLINE_3PX:
+	case ID_WIDTHLINE_4PX:
+		FiguresControl::Instance().setWidthLine(wmId);
+		break;
+	case ID_OPTIONS_LINECOLOR:
+		FiguresControl::Instance().chooseLineColor();
+		break;
+	case ID_FILLCOLOR_NONE:
+		FiguresControl::Instance().chooseFillColor(false);
+		break;
+	case ID_FILLCOLOR_BRUSH:
+		FiguresControl::Instance().chooseFillColor(true);
+		break;
+	case IDM_OPEN:
+		FiguresControl::Instance().openEncFile(WindowControl::Instance().openFile(hWnd));
+		InvalidateRect(hWnd, NULL, true);
+		UpdateWindow(hWnd);
+		break;
+	case IDM_Save:
+		RECT rect;
+		GetClientRect(hWnd, &rect);
+		FiguresControl::Instance().saveEncFile(WindowControl::Instance().saveFile(hWnd), rect);
+		break;
 	}
 }

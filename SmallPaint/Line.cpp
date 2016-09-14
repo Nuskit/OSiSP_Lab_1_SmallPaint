@@ -31,12 +31,11 @@ void Lines::GetEndPosition(int &x, int &y)
 
 void Lines::DrawLine(HDC hdc)
 {
-	brush.SetPen();
 	MoveToEx(hdc, x1, y1, NULL);
 	LineTo(hdc, x2, y2);
 }
 
-void Figures::Lines::drawFigure(HDC hdc)
+void Lines::drawFigure(HDC hdc)
 {
    DrawLine(hdc);
 }

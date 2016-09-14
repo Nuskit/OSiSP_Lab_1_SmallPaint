@@ -33,12 +33,6 @@
     <ClInclude Include="SmallPaint.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="All_Figure.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
-    <ClInclude Include="Arr_Fig.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
     <ClInclude Include="Chord.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
@@ -52,9 +46,6 @@
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
     <ClInclude Include="Rectangle.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
-    <ClInclude Include="PolyLine.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
     <ClInclude Include="WindowControl.h">
@@ -87,11 +78,20 @@
     <ClInclude Include="Pen.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
+    <ClInclude Include="AbstractDrawObject.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="LibraryDrawObject.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="Brush.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="PolyLine.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="All_Figure.cpp">
-      <Filter>Файлы исходного кода\Figures</Filter>
-    </ClCompile>
     <ClCompile Include="Ellipse.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
@@ -128,6 +128,12 @@
     <ClCompile Include="FiguresControl.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+    <ClCompile Include="AbstractDrawObject.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="Brush.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="small.ico">
@@ -141,5 +147,8 @@
     <ResourceCompile Include="SmallPaint.rc">
       <Filter>Файлы ресурсов</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>

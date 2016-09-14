@@ -14,5 +14,6 @@ namespace Figures
 		const RECT& getRectZone();
     void drawFigure(HDC);
     void setEndPosition(int, int);
+		void setStartPosition(int, int);
   };
 }

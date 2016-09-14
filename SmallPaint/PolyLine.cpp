@@ -3,75 +3,59 @@
 #include "PolyLine.h"
 using namespace Figures;
 
-void PolyLine::deletePos()
+PolyLine::~PolyLine()
 {
-	if (x != NULL)
-		delete[]x;
-	x = NULL;
-	if (y != NULL)
-		delete[]y;
-	y = NULL;
-}
-
-void PolyLine::SetSize(int new_size)
-{
-	size = new_size;
-	deletePos();
-	x = new int[size];
-	y = new int[size];
-}
-
-void PolyLine::SetStartPosition(int new_x, int new_y)
-{
-	SetSize(2);
-	x[0] =x[1]= new_x;
-	y[0] =y[1]= new_y;
+	points.clear();
 }
 
 void PolyLine::SetEndPosition(int next_x, int next_y)
 {
-	x[size - 1] = next_x;
-	y[size - 1] = next_y;
+	addNewPoint(next_x, next_y);
 }
 
-void PolyLine::DrawPolyLine()
+void PolyLine::drawPolyLine(HDC hdc)
 {
-	if (size > 0)
-	{
-		brush.SetPen();
-		MoveToEx(hdc, x[0], y[0], NULL);
-		for (int i = 0; i < size; i++)
-			LineTo(hdc, x[i], y[i]);
-		LineTo(hdc, x[0], y[0]);
-	}
+	Polyline(hdc, points.data(), points.size());
 }
 
-void PolyLine::DrawPolyLine(int next_x, int next_y)
+void PolyLine::addNewPoint(int new_x, int new_y)
 {
-	SetEndPosition(next_x, next_y);
-
-	DrawPolyLine();
+	points.push_back(POINT{ new_x,new_y });
 }
 
-void PolyLine::AddNewPoint(int new_x, int new_y)
+const RECT& PolyLine::getRectZone()
 {
-	int *old_x = new int[size];
-	int *old_y = new int[size];
-	for (int i = 0; i < size; i++)
+	if (points.size() > 0)
 	{
-		old_x[i] = x[i];
-		old_y[i] = y[i];
+		rectZoneBuffer = RECT{ points[0].x,points[0].y,points[0].x,points[0].y };
+		for (int i = 1; i < points.size(); i++)
+		{
+			if (points[i].x<rectZoneBuffer.left)
+				rectZoneBuffer.left = points[i].x;
+			else if (points[i].x>rectZoneBuffer.right)
+				rectZoneBuffer.right = points[i].x;
+			if (points[i].y<rectZoneBuffer.top)
+				rectZoneBuffer.top = points[i].y;
+			else if (points[i].y>rectZoneBuffer.bottom)
+				rectZoneBuffer.bottom = points[i].y;
+		}
 	}
-	SetSize(++size);
+	else
+		rectZoneBuffer = RECT{ 0,0 };
+	return rectZoneBuffer;
+}
 
-	for (int i = 0; i < size - 1; i++)
-	{
-		x[i] = old_x[i];
-		y[i] = old_y[i];
-	}
-	x[size - 1] = new_x;
-	y[size - 1] = new_y;
+void Figures::PolyLine::drawFigure(HDC hdc)
+{
+	drawPolyLine(hdc);
+}
 
-	delete[]old_x;
-	delete[]old_y;
+void PolyLine::setStartPosition(int x, int y)
+{
+	addNewPoint(x, y);
+}
+
+void PolyLine::setEndPosition(int x, int y)
+{
+	addNewPoint(x, y);
 }

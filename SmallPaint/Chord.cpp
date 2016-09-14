@@ -1,11 +1,13 @@
 #pragma once
 #include "stdafx.h"
 #include "Chord.h"
+
 using namespace Figures;
 
 void Chords::DrawChords()
 {
-	brush.SetPen();
+	HDC hdc;
+	brush->setPen(hdc);
 
 	Chord(hdc, x[0], y[0], x[1], y[1], xEl1, yEl1, xEl2, yEl2);
 }

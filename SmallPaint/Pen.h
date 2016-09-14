@@ -5,7 +5,7 @@
 
 namespace Figures
 {
-	//class Pen :public Figure
+	//class Pen :public AbstractDrawObject
 	//{
 
 	//};

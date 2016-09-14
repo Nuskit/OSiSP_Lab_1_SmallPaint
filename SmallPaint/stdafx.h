@@ -14,12 +14,13 @@
 
 // Файлы заголовков C RunTime
 #include <stdlib.h>
-#include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <commdlg.h>
 
 
 // TODO: Установите здесь ссылки на дополнительные заголовки, требующиеся для программы
 #include <map>
 #include <memory>
 #include <list>
+#include <vector>

@@ -5,19 +5,16 @@
 
 namespace Figures
 {
-  class RoundRectangles :public Rectangles
-  {
-  protected:
-    int xEl, yEl;
-  public:
-    RoundRectangles() :Rectangles() { xEl = yEl = 50; }
-    void DrawRoundRectangles();
-    void SetEllipse(int, int);
-    void DrawRoundRectangles(int, int);
-    void DrawRoundRectangles(int, int, int, int);
-    void DrawRoundRectangles(int, int, int, int, int, int);
-
-    void drawFigure() { DrawRoundRectangles(); }
-    void drawFigure(int x, int y) { DrawRoundRectangles(x, y); }
-  };
+	class RoundRectangles :public Rectangles
+	{
+		//  protected:
+		//    int xEl, yEl;
+		//  public:
+		//		RoundRectangles();
+		//    void DrawRoundRectangles(HDC);
+		//    void SetEllipse(int, int);
+		//
+		////		void drawFigure(HDC);
+		//  };
+	};
 }

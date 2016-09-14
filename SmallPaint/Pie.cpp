@@ -5,7 +5,8 @@ using namespace Figures;
 
 void Pies::DrawPies()
 {
-	brush.SetPen();
+	HDC hdc;
+	brush->setPen(hdc);
 	Pie(hdc, x[0], y[0], x[1], y[1], xEl1, yEl1, xEl2, yEl2);
 }
 void Pies::DrawPies(int new_x2, int new_y2)
