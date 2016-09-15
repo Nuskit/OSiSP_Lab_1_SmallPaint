@@ -14,15 +14,12 @@ void FiguresControl::setDrawHwnd(const HWND hwnd)
 
 VOID FiguresControl::setFigure(int idFigure)
 {
+	clearCurrentFigure();
   objectFigures.setFigure(idFigure);
 }
 
 VOID FiguresControl::drawFigures(HDC hdc,RECT rect,const HWND hWnd)
 {
-	//SaveDC(hdc);
-	//setMapMode(hdc);
-	//DPtoLP(hdc, (PPOINT)&rect, 2);
-	//RestoreDC(hdc, -1);
 	if (metaFile)
 	{
 		RECT trect;
@@ -38,6 +35,8 @@ VOID FiguresControl::drawFigures(HDC hdc,RECT rect,const HWND hWnd)
 VOID FiguresControl::startDrawing(POINT position)
 {
   isNowDrawing = createNewFigure(position);
+	if (currentFigure)
+		currentFigure->setStartPosition(position.x, position.y);
 	ChangeStartDrawZone();
 }
 
@@ -65,19 +64,22 @@ VOID FiguresControl::changeDraw(POINT position)
 
 bool FiguresControl::createNewFigure(POINT position)
 {
-  currentFigure.reset(objectFigures.create());
-  if (currentFigure != NULL)
-  {
-		currentFigure->setFillBrush(brush);
-    currentFigure->setStartPosition(position.x, position.y);
-		listFigures.push_back(currentFigure);
-  }
-  return currentFigure == NULL ? false : true;
+	if (currentFigure == NULL)
+	{
+		currentFigure.reset(objectFigures.create());
+		if (currentFigure != NULL)
+		{
+			currentFigure->setFillBrush(brush);
+			listFigures.push_back(currentFigure);
+		}
+	}
+	return currentFigure == NULL ? false : true;
 }
 
 bool FiguresControl::saveFigure()
 {
-  currentFigure = NULL;
+	if (!currentFigure->isContinueDraw())
+		currentFigure = NULL;
   return false;
 }
 
@@ -156,6 +158,18 @@ void FiguresControl::saveEncFile(const char *fullPath, const HWND hWnd)
 	}
 }
 
+void FiguresControl::deleteLastFigure()
+{
+	currentFigure = NULL;
+	if (listFigures.size() > 0)
+		listFigures.pop_back();
+}
+
+void FiguresControl::clearCurrentFigure()
+{
+	currentFigure = NULL;
+}
+
 COLORREF FiguresControl::getColor(COLORREF color)
 {
 	CHOOSECOLOR cc;
@@ -184,6 +198,7 @@ void FiguresControl::addDefaultFigures()
   objectFigures.add<Ellipses>(IDC_ID_BUTTON_Ellipse);
   //objectFigures.add<Chords>(ID_BUTTON_7);
   //objectFigures.add<Pies>(ID_BUTTON_8);
+	objectFigures.add<PolyGon>(IDC_ID_BUTTON_Polygon);
 }
 
 FiguresControl::FiguresControl() :isNowDrawing(false), objectFigures(), metaFile(NULL),listFigures(), currentFigure(nullptr)

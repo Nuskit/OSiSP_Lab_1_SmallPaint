@@ -61,9 +61,9 @@ void Ellipses::SetEndPosition(int next_x, int next_y)
 
 const RECT& Ellipses::getRectZone()
 {
-	rectZoneBuffer.bottom = (y[0] > y[1] ? y[0] : y[1]) + 2;
-	rectZoneBuffer.left = (x[0] > x[1] ? x[1] : x[0]) - 2;
-	rectZoneBuffer.right = (x[0] > x[1] ? x[0] : x[1]) + 2;
-	rectZoneBuffer.top = (y[0] > y[1] ? y[1] : y[0]) - 2;
+	rectZoneBuffer.bottom = (y[0] > y[1] ? y[0] : y[1]) + brush->getWidthPen();
+	rectZoneBuffer.left = (x[0] > x[1] ? x[1] : x[0]) - brush->getWidthPen();
+	rectZoneBuffer.right = (x[0] > x[1] ? x[0] : x[1]) + brush->getWidthPen();
+	rectZoneBuffer.top = (y[0] > y[1] ? y[1] : y[0]) - brush->getWidthPen();
 	return rectZoneBuffer;
 }

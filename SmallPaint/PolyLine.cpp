@@ -3,14 +3,14 @@
 #include "PolyLine.h"
 using namespace Figures;
 
+void PolyLine::addPoint(int new_x, int new_y)
+{
+	points.push_back(POINT{ new_x,new_y });
+}
+
 PolyLine::~PolyLine()
 {
 	points.clear();
-}
-
-void PolyLine::SetEndPosition(int next_x, int next_y)
-{
-	addNewPoint(next_x, next_y);
 }
 
 void PolyLine::drawPolyLine(HDC hdc)
@@ -18,44 +18,40 @@ void PolyLine::drawPolyLine(HDC hdc)
 	Polyline(hdc, points.data(), points.size());
 }
 
-void PolyLine::addNewPoint(int new_x, int new_y)
-{
-	points.push_back(POINT{ new_x,new_y });
-}
-
 const RECT& PolyLine::getRectZone()
 {
 	if (points.size() > 0)
 	{
-		rectZoneBuffer = RECT{ points[0].x,points[0].y,points[0].x,points[0].y };
-		for (int i = 1; i < points.size(); i++)
-		{
-			if (points[i].x<rectZoneBuffer.left)
-				rectZoneBuffer.left = points[i].x;
-			else if (points[i].x>rectZoneBuffer.right)
-				rectZoneBuffer.right = points[i].x;
-			if (points[i].y<rectZoneBuffer.top)
-				rectZoneBuffer.top = points[i].y;
-			else if (points[i].y>rectZoneBuffer.bottom)
-				rectZoneBuffer.bottom = points[i].y;
-		}
+		int size = points.size();
+		rectZoneBuffer.bottom = (points[size-2].y > points[size-1].y ? points[size-2].y : points[size-1].y) + brush->getWidthPen();
+		rectZoneBuffer.left = (points[size-2].x > points[size-1].x ? points[size-1].x : points[size-2].x) - brush->getWidthPen();
+		rectZoneBuffer.right = (points[size-2].x > points[size-1].x ? points[size-2].x : points[size-1].x) + brush->getWidthPen();
+		rectZoneBuffer.top = (points[size-2].y > points[size-1].y ? points[size-1].y : points[size-2].y) - brush->getWidthPen();
 	}
 	else
 		rectZoneBuffer = RECT{ 0,0 };
 	return rectZoneBuffer;
 }
 
-void Figures::PolyLine::drawFigure(HDC hdc)
+void PolyLine::drawFigure(HDC hdc)
 {
 	drawPolyLine(hdc);
 }
 
 void PolyLine::setStartPosition(int x, int y)
 {
-	addNewPoint(x, y);
+	if (points.size() == 0)
+		addPoint(x, y);
+	addPoint(x, y);
 }
 
 void PolyLine::setEndPosition(int x, int y)
 {
-	addNewPoint(x, y);
+	points.pop_back();
+	addPoint(x, y);
+}
+
+const bool PolyLine::isContinueDraw()
+{
+	return true;
 }

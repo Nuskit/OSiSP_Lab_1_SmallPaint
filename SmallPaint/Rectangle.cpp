@@ -30,6 +30,11 @@ void Rectangles::setStartPosition(int x, int y)
 	points[0].y= points[1].y = y;
 }
 
+const bool Figures::Rectangles::isContinueDraw()
+{
+	return false;
+}
+
 const RECT& Rectangles::getRectZone()
 {
 	rectZoneBuffer.bottom = (points[0].y > points[1].y ? points[0].y : points[1].y) + brush->getWidthPen();

@@ -28,6 +28,8 @@ public:
 	void chooseFillColor(const bool);
 	void openEncFile(const char*);
 	void saveEncFile(const char*,const HWND);
+	void deleteLastFigure();
+	void clearCurrentFigure();
 
   static FiguresControl& Instance()
   {

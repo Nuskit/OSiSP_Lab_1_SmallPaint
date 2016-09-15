@@ -43,7 +43,7 @@ HWND WindowControl::createPanelFiguresParent(HWND hWnd) const
 VOID WindowControl::createPanelFiguresButtons(HWND hWnd) const
 {
   std::list<int> allButtonsID{
-    IDC_ID_BUTTON_Pen, IDC_ID_BUTTON_Line, IDC_ID_BUTTON_Polyline, 
+    IDC_ID_BUTTON_Pen, IDC_ID_BUTTON_Line, IDC_ID_BUTTON_Polyline, IDC_ID_BUTTON_Polygon,
 		IDC_ID_BUTTON_Rectangle, IDC_ID_BUTTON_Ellipse, IDC_ID_BUTTON_Text };
   TCHAR nameButton[MAX_LOADSTRING];
   int i = 0;

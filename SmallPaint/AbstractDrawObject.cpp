@@ -27,6 +27,11 @@ void AbstractDrawObject::setFillBrush(const Brush &_brush)
 	brush.reset(new Brush(_brush));
 }
 
+const bool Figures::AbstractDrawObject::isContinueDraw()
+{
+	return false;
+}
+
 AbstractDrawObject::AbstractDrawObject():brush(new Brush())
 {
 }

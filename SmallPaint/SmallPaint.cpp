@@ -96,7 +96,7 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
   wcex.hInstance = hInstance;
   wcex.hIcon = LoadIcon(hInstance, MAKEINTRESOURCE(IDI_SmallPaint));
   wcex.hCursor = LoadCursor(NULL, IDC_ARROW);
-	wcex.hbrBackground = NULL;// (HBRUSH)(COLOR_WINDOW + 1);
+	wcex.hbrBackground = (HBRUSH)(COLOR_WINDOW + 1);
   wcex.lpszMenuName = MAKEINTRESOURCE(IDC_SmallPaint);
   wcex.lpszClassName = szWindowClass;
   wcex.hIconSm = LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
@@ -181,11 +181,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
       break;
     case VK_BACK:
-      //if (!List_Figure.empty() && !Cur_Drawing)
-      //{
-      //  List_Figure.pop_back();
-      //  Clear_Holst();
-      //}
+			SendMessage(paintZone, WM_USER, NULL, NULL);
       break;
     }
     break;
@@ -228,19 +224,31 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 {
 	static float scale = 1;
 	static int xPosition=0,xStartPositon=0, yStartPositon=0,yPosition = 0;
+	static bool isWheel = false;
   switch (message)
   {
 	case WM_CREATE:
 		FiguresControl::Instance().setDrawHwnd(hWnd);
 		break;
+	case WM_USER:
+		SendMessage(hWnd, WM_LBUTTONUP, NULL, NULL);
+		FiguresControl::Instance().deleteLastFigure();
+		InvalidateRect(hWnd, NULL, true);
+		UpdateWindow(hWnd);
+		break;
+
 	case WM_MBUTTONDOWN:
 		SetCapture(hWnd);
 		SetCursor(LoadCursor(NULL, IDC_SIZEALL));
+		isWheel = true;
 		xPosition=xStartPositon = LOWORD(lParam);
 		yPosition=yStartPositon = HIWORD(lParam);
 		SetTimer(hWnd, IDC_TIMER_REDRAW, TIMER_PAINT_RATE, NULL);
 		break;
 	case WM_MBUTTONUP:
+		isWheel = false;
+		scale = 1;
+		xStartPositon = yStartPositon = xPosition = yPosition = 0;
 		ReleaseCapture();
 		KillTimer(hWnd, IDC_TIMER_REDRAW);
 	case WM_MOUSEWHEEL:
@@ -265,7 +273,7 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 		hdcOld = CreateCompatibleDC(hdc);
 		RECT rect;
 		GetClientRect(hWnd, &rect);
-
+		
 		HBITMAP hBitmap = CreateCompatibleBitmap(hdc, rect.right-rect.left, rect.bottom-rect.top);
 		SelectObject(hdcOld, hBitmap);
 		
@@ -318,7 +326,7 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   case WM_MOUSEMOVE:
     if (FiguresControl::Instance().isDrawing())
       FiguresControl::Instance().changeDraw(getCurrentCursorPosisiton(hWnd));
-		else
+		else if (isWheel)
 		{
 			xPosition = LOWORD(lParam);
 			yPosition = HIWORD(lParam);

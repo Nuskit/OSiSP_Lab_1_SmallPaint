@@ -90,6 +90,9 @@
     <ClInclude Include="PolyLine.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
+    <ClInclude Include="PolyGon.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ellipse.cpp">
@@ -133,6 +136,9 @@
     </ClCompile>
     <ClCompile Include="Brush.cpp">
       <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="PolyGon.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -9,15 +9,15 @@ namespace Figures
   {
   protected:
     vector<POINT> points;
+		void addPoint(int, int);
   public:
 		~PolyLine();
-    void SetEndPosition(int, int);
 		void drawPolyLine(HDC);
-    void addNewPoint(int, int);
 
 		const RECT& getRectZone();
 		void drawFigure(HDC);
 		void setStartPosition(int x, int y);
 		void setEndPosition(int x, int y);
+		const bool isContinueDraw();
   };
 }

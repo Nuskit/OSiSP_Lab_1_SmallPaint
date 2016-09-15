@@ -80,6 +80,7 @@
     <ClInclude Include="Chord.h" />
     <ClInclude Include="FiguresControl.h" />
     <ClInclude Include="Pen.h" />
+    <ClInclude Include="PolyGon.h" />
     <ClInclude Include="Round_Rectangle.h" />
     <ClInclude Include="Singleton.h" />
     <ClInclude Include="SmallPaint.h" />
@@ -101,6 +102,7 @@
     <ClCompile Include="Brush.cpp" />
     <ClCompile Include="Chord.cpp" />
     <ClCompile Include="FiguresControl.cpp" />
+    <ClCompile Include="PolyGon.cpp" />
     <ClCompile Include="SmallPaint.cpp" />
     <ClCompile Include="Ellipse.cpp" />
     <ClCompile Include="Line.cpp" />

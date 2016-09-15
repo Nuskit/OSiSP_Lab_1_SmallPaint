@@ -15,5 +15,6 @@ namespace Figures
     void drawFigure(HDC);
     void setEndPosition(int, int);
 		void setStartPosition(int, int);
+		const bool isContinueDraw();
   };
 }
