@@ -30,6 +30,7 @@ public:
 	void saveEncFile(const char*,const HWND);
 	void deleteLastFigure();
 	void clearCurrentFigure();
+	void addText(const int);
 
   static FiguresControl& Instance()
   {

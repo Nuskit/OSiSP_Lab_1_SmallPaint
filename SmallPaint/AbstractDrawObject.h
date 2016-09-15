@@ -22,8 +22,9 @@ namespace Figures
 		const bool isInRectZone(const RECT&);
     virtual void addNewPoint(int, int) {};
     virtual ~AbstractDrawObject();
-		void setFillBrush(const Brush&);
+		virtual void setFillBrush(const Brush&);
 		virtual const bool isContinueDraw();
+		void setBrush(HDC);
 		AbstractDrawObject();
   };
 

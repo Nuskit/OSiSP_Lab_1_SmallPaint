@@ -13,9 +13,7 @@ Ellipses::Ellipses()
 void Ellipses::DrawEllipses(HDC hdc)
 {
 	brush->setPen(hdc);
-	HGDIOBJ lastBrush=SelectObject(hdc, GetStockObject(HOLLOW_BRUSH));
 	Ellipse(hdc, x[0], y[0], x[1], y[1]);
-	SelectObject(hdc, lastBrush);
 }
 
 void Figures::Ellipses::drawFigure(HDC hdc)

@@ -170,6 +170,11 @@ void FiguresControl::clearCurrentFigure()
 	currentFigure = NULL;
 }
 
+void FiguresControl::addText(const int symvol)
+{
+	((TextObject*)currentFigure.get())->addText(symvol);
+}
+
 COLORREF FiguresControl::getColor(COLORREF color)
 {
 	CHOOSECOLOR cc;
@@ -190,14 +195,17 @@ COLORREF FiguresControl::getColor(COLORREF color)
 
 void FiguresControl::addDefaultFigures()
 {
+	objectFigures.add<ClearPen>(IDC_ID_ClearPen);
+	objectFigures.add<Pen>(IDC_ID_BUTTON_Pen);
   objectFigures.add<Lines>(IDC_ID_BUTTON_Line);
-  //objectFigures.add<Triangle>(IDC_ID_BUTTON_Lin);
+	objectFigures.add<TextObject>(IDC_ID_BUTTON_Text);
   objectFigures.add<PolyLine>(IDC_ID_BUTTON_Polyline);
   objectFigures.add<Rectangles>(IDC_ID_BUTTON_Rectangle);
-  //objectFigures.add<RoundRectangles>(ID_BUTTON_5);
+  objectFigures.add<RoundRectangles>(IDC_ID_BUTTON_RoundRectangle);
   objectFigures.add<Ellipses>(IDC_ID_BUTTON_Ellipse);
   //objectFigures.add<Chords>(ID_BUTTON_7);
   //objectFigures.add<Pies>(ID_BUTTON_8);
+	//objectFigures.add<Triangle>(IDC_ID_BUTTON_Lin);
 	objectFigures.add<PolyGon>(IDC_ID_BUTTON_Polygon);
 }
 

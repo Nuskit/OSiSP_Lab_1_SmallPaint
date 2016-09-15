@@ -33,16 +33,10 @@
     <ClInclude Include="SmallPaint.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="Chord.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
     <ClInclude Include="Ellipse.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
     <ClInclude Include="Line.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
-    <ClInclude Include="Pie.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
     <ClInclude Include="Rectangle.h">
@@ -72,9 +66,6 @@
     <ClInclude Include="Round_Rectangle.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
-    <ClInclude Include="Triangle.h">
-      <Filter>Заголовочные файлы\Figures</Filter>
-    </ClInclude>
     <ClInclude Include="Pen.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
@@ -93,15 +84,18 @@
     <ClInclude Include="PolyGon.h">
       <Filter>Заголовочные файлы\Figures</Filter>
     </ClInclude>
+    <ClInclude Include="TextObject.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
+    <ClInclude Include="ClearPen.h">
+      <Filter>Заголовочные файлы\Figures</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Ellipse.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
     <ClCompile Include="Line.cpp">
-      <Filter>Файлы исходного кода\Figures</Filter>
-    </ClCompile>
-    <ClCompile Include="Pie.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
     <ClCompile Include="PolyLine.cpp">
@@ -113,12 +107,6 @@
     <ClCompile Include="Round_Rectangle.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
-    <ClCompile Include="Triangle.cpp">
-      <Filter>Файлы исходного кода\Figures</Filter>
-    </ClCompile>
-    <ClCompile Include="Chord.cpp">
-      <Filter>Файлы исходного кода\Figures</Filter>
-    </ClCompile>
     <ClCompile Include="WindowControl.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
@@ -128,9 +116,6 @@
     <ClCompile Include="SmallPaint.cpp">
       <Filter>Файлы исходного кода\Default</Filter>
     </ClCompile>
-    <ClCompile Include="FiguresControl.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </ClCompile>
     <ClCompile Include="AbstractDrawObject.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
@@ -138,6 +123,18 @@
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
     <ClCompile Include="PolyGon.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="FiguresControl.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="Pen.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="ClearPen.cpp">
+      <Filter>Файлы исходного кода\Figures</Filter>
+    </ClCompile>
+    <ClCompile Include="TextObject.cpp">
       <Filter>Файлы исходного кода\Figures</Filter>
     </ClCompile>
   </ItemGroup>

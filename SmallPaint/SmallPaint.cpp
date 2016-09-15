@@ -37,6 +37,8 @@ LRESULT CALLBACK	WndProc(HWND, UINT, WPARAM, LPARAM);
 VOID createControlPanels(HWND,HINSTANCE);
 VOID workWithPanelCommand(HWND ,WPARAM);
 
+static bool isText = false;
+static bool isWriteText = false;
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -181,13 +183,18 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
       SendMessage(hWnd, WM_CLOSE, 0, 0);
       break;
     case VK_BACK:
-			SendMessage(paintZone, WM_USER, NULL, NULL);
+			if (!isWriteText)
+				SendMessage(paintZone, WM_USER, NULL, NULL);
       break;
     }
     break;
 
 	case WM_COMMAND:
 		workWithPanelCommand(hWnd,wParam);
+		break;
+	case WM_CHAR:
+		if (isText)
+			SendMessage(paintZone, message, wParam, lParam);
 		break;
   default:
     return DefWindowProc(hWnd, message, wParam, lParam);
@@ -206,6 +213,8 @@ LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam
   break;
     break;
   case WM_COMMAND:
+		isWriteText = false;
+		isText = wParam == IDC_ID_BUTTON_Text ? true : false;
     switch (wParam)
     {
     default:
@@ -299,6 +308,11 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   break;
   case WM_LBUTTONDOWN:
   {
+		if (isText)
+		{
+			FiguresControl::Instance().clearCurrentFigure();
+			isWriteText = true;
+		}
     FiguresControl::Instance().startDrawing(getCurrentCursorPosisiton(hWnd));
 		if (FiguresControl::Instance().isDrawing())
 		{
@@ -320,6 +334,18 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 			KillTimer(hWnd, IDC_TIMER_PAINT);
 			PaintTimerRedraw(hWnd);
 			FiguresControl::Instance().endDrawing();
+			//if (isText)
+			//{
+			//	TEXTMETRIC tm;
+			//	HDC hdc = GetDC(hWnd);
+			//	GetTextMetrics(hdc, &tm);
+			//	LONG cxChar = tm.tmAveCharWidth;
+			//	LONG cyChar = tm.tmHeight;
+			//	ReleaseDC(hWnd,hdc);
+			//	CreateCaret(hWnd, NULL, cxChar, cyChar);
+			//	SetCaretPos(LOWORD(lParam) * cxChar, HIWORD(lParam) * cyChar);
+			//	ShowCaret(hWnd);
+			//}
     }
   }
   break;
@@ -344,7 +370,13 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 			break;
 		}
     break;
-
+	case WM_CHAR:
+		if (isWriteText)
+		{
+			FiguresControl::Instance().addText(wParam);
+			PaintTimerRedraw(hWnd);
+		}
+		break;
   default:
     return DefWindowProc(hWnd, message, wParam, lParam);
   }

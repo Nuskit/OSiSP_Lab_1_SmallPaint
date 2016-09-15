@@ -11,7 +11,7 @@ class Brush
 protected:
 	typedef std::pair<int, int> widthPair;
 	const map<int, int> lineWidth{ widthPair{ ID_WIDTHLINE_1PX ,1 }, widthPair{ID_WIDTHLINE_2PX, 2},
-		widthPair{ID_WIDTHLINE_3PX, 3}, widthPair {ID_WIDTHLINE_4PX, 4} };
+		widthPair{ID_WIDTHLINE_3PX, 3}, widthPair {ID_WIDTHLINE_4PX, 4}, widthPair{ ID_WIDTHLINE_8PX,8 } };
 	int typePen, widthLine;
 	COLORREF colorLine,colorFill;
 	HPEN hpen;

@@ -7,8 +7,7 @@ void Figures::AbstractDrawObject::drawFigure(HDC hdc, const RECT &rect)
 {
 	if (isInRectZone(rect))
 	{
-		brush->setPen(hdc);
-		brush->setBrush(hdc);
+		setBrush(hdc);
 		drawFigure(hdc);
 	}
 }
@@ -30,6 +29,12 @@ void AbstractDrawObject::setFillBrush(const Brush &_brush)
 const bool Figures::AbstractDrawObject::isContinueDraw()
 {
 	return false;
+}
+
+void AbstractDrawObject::setBrush(HDC hdc)
+{
+	brush->setPen(hdc);
+	brush->setBrush(hdc);
 }
 
 AbstractDrawObject::AbstractDrawObject():brush(new Brush())
