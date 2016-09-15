@@ -7,6 +7,19 @@
 
 using namespace Figures;
 
+void FiguresControl::startScreen(POINT position)
+{
+	setFigure(IDC_ID_BUTTON_Rectangle);
+	startDrawing(position);
+}
+
+const RECT FiguresControl::getScreen()
+{
+	RECT rect = currentFigure->getRectZone();
+	listFigures.pop_back();
+	return rect;
+}
+
 void FiguresControl::setDrawHwnd(const HWND hwnd)
 {
 	this->hWnd = hwnd;
@@ -145,9 +158,9 @@ void FiguresControl::saveEncFile(const char *fullPath, const HWND hWnd)
 		GetClientRect(this->hWnd, &rect);
 		HDC hdc = CreateEnhMetaFile(NULL, fullPath, NULL, NULL);
 
+		FillRect(hdc, &rect, HBRUSH(COLOR_WINDOW + 1));
 		if (metaFile)
 		{
-
 			PlayEnhMetaFile(hdc, metaFile, &rect);
 		}
 

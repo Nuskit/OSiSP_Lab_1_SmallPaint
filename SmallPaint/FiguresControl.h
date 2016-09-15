@@ -13,6 +13,8 @@ using namespace Figures;
 class FiguresControl// :public Templates::Singleton<FiguresControl>
 {  
 public:
+	void startScreen(POINT);
+	const RECT getScreen();
 	void setDrawHwnd(const HWND);
   VOID setFigure(int);
   VOID drawFigures(HDC,RECT,const HWND);

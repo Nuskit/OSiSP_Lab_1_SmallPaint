@@ -13,6 +13,9 @@ enum
   HEIGH_CONTROL_PANEL = 100
 };
 
+void saveScreen(HWND);
+
+LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 POINT getCurrentCursorPosisiton(HWND);
 void PaintTimerRedraw(HWND);
 
@@ -26,6 +29,7 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// им€ класса главного окна
 TCHAR szWindowClassPaint[MAX_LOADSTRING];
 TCHAR szWindowClassFigures[MAX_LOADSTRING];
 
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam);
 // ќтправить объ€влени€ функций, включенных в этот модуль кода:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
 ATOM        RegisterChildClass(WNDCLASSEX);
@@ -39,6 +43,7 @@ VOID workWithPanelCommand(HWND ,WPARAM);
 
 static bool isText = false;
 static bool isWriteText = false;
+static bool isScreen = false;
 
 int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
   _In_opt_ HINSTANCE hPrevInstance,
@@ -213,6 +218,7 @@ LRESULT CALLBACK WndChildControlPanelProc(HWND hWnd, UINT message, WPARAM wParam
   break;
     break;
   case WM_COMMAND:
+		isScreen = false;
 		isWriteText = false;
 		isText = wParam == IDC_ID_BUTTON_Text ? true : false;
     switch (wParam)
@@ -308,6 +314,7 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   break;
   case WM_LBUTTONDOWN:
   {
+		if (!isScreen)
 		if (isText)
 		{
 			FiguresControl::Instance().clearCurrentFigure();
@@ -324,29 +331,46 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 			SetCursor(LoadCursor(NULL,IDC_CROSS));
 			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
 		}
+		else
+		{
+			FiguresControl::Instance().startScreen(getCurrentCursorPosisiton(hWnd));
+			SetCapture(hWnd);
+			SetCursor(LoadCursor(NULL, IDC_CROSS));
+			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
+		}
   }
   break;
   case WM_LBUTTONUP:
   {
-    if (FiguresControl::Instance().isDrawing())
-    {
-      ReleaseCapture();
-			KillTimer(hWnd, IDC_TIMER_PAINT);
-			PaintTimerRedraw(hWnd);
+		if (!isScreen)
+		{
+			if (FiguresControl::Instance().isDrawing())
+			{
+				ReleaseCapture();
+				KillTimer(hWnd, IDC_TIMER_PAINT);
+				PaintTimerRedraw(hWnd);
+				FiguresControl::Instance().endDrawing();
+				//if (isText)
+				//{
+				//	TEXTMETRIC tm;
+				//	HDC hdc = GetDC(hWnd);
+				//	GetTextMetrics(hdc, &tm);
+				//	LONG cxChar = tm.tmAveCharWidth;
+				//	LONG cyChar = tm.tmHeight;
+				//	ReleaseDC(hWnd,hdc);
+				//	CreateCaret(hWnd, NULL, cxChar, cyChar);
+				//	SetCaretPos(LOWORD(lParam) * cxChar, HIWORD(lParam) * cyChar);
+				//	ShowCaret(hWnd);
+				//}
+			}
+		}
+		else
+		{
+			saveScreen(hWnd);
 			FiguresControl::Instance().endDrawing();
-			//if (isText)
-			//{
-			//	TEXTMETRIC tm;
-			//	HDC hdc = GetDC(hWnd);
-			//	GetTextMetrics(hdc, &tm);
-			//	LONG cxChar = tm.tmAveCharWidth;
-			//	LONG cyChar = tm.tmHeight;
-			//	ReleaseDC(hWnd,hdc);
-			//	CreateCaret(hWnd, NULL, cxChar, cyChar);
-			//	SetCaretPos(LOWORD(lParam) * cxChar, HIWORD(lParam) * cyChar);
-			//	ShowCaret(hWnd);
-			//}
-    }
+			ReleaseCapture();
+			KillTimer(hWnd, IDC_TIMER_PAINT);
+		}
   }
   break;
   case WM_MOUSEMOVE:
@@ -381,6 +405,107 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
     return DefWindowProc(hWnd, message, wParam, lParam);
   }
   return 0;
+}
+
+inline int GetFilePointer(HANDLE FileHandle) {
+	return SetFilePointer(FileHandle, 0, 0, FILE_CURRENT);
+}
+
+bool SaveBMPFile(char *filename, HBITMAP bitmap, HDC bitmapDC, int width, int height) {
+	bool Success = 0;
+	HDC SurfDC = NULL;
+	HBITMAP OffscrBmp = NULL;
+	HDC OffscrDC = NULL;
+	LPBITMAPINFO lpbi = NULL;
+	LPVOID lpvBits = NULL;
+	HANDLE BmpFile = INVALID_HANDLE_VALUE;
+	BITMAPFILEHEADER bmfh;
+	if ((OffscrBmp = CreateCompatibleBitmap(bitmapDC, width, height)) == NULL)
+		return 0;
+	if ((OffscrDC = CreateCompatibleDC(bitmapDC)) == NULL)
+		return 0;
+	HBITMAP OldBmp = (HBITMAP)SelectObject(OffscrDC, OffscrBmp);
+	BitBlt(OffscrDC, 0, 0, width, height, bitmapDC, 0, 0, SRCCOPY);
+	if ((lpbi = (LPBITMAPINFO)(new char[sizeof(BITMAPINFOHEADER) + 256 * sizeof(RGBQUAD)])) == NULL)
+		return 0;
+	ZeroMemory(&lpbi->bmiHeader, sizeof(BITMAPINFOHEADER));
+	lpbi->bmiHeader.biSize = sizeof(BITMAPINFOHEADER);
+	SelectObject(OffscrDC, OldBmp);
+	if (!GetDIBits(OffscrDC, OffscrBmp, 0, height, NULL, lpbi, DIB_RGB_COLORS))
+		return 0;
+	if ((lpvBits = new char[lpbi->bmiHeader.biSizeImage]) == NULL)
+		return 0;
+	if (!GetDIBits(OffscrDC, OffscrBmp, 0, height, lpvBits, lpbi, DIB_RGB_COLORS))
+		return 0;
+	if ((BmpFile = CreateFile(filename,
+		GENERIC_WRITE,
+		0, NULL,
+		CREATE_ALWAYS,
+		FILE_ATTRIBUTE_NORMAL,
+		NULL)) == INVALID_HANDLE_VALUE)
+		return 0;
+	DWORD Written;
+	bmfh.bfType = 19778;
+	bmfh.bfReserved1 = bmfh.bfReserved2 = 0;
+	if (!WriteFile(BmpFile, &bmfh, sizeof(bmfh), &Written, NULL))
+		return 0;
+	if (Written < sizeof(bmfh))
+		return 0;
+	if (!WriteFile(BmpFile, &lpbi->bmiHeader, sizeof(BITMAPINFOHEADER), &Written, NULL))
+		return 0;
+	if (Written < sizeof(BITMAPINFOHEADER))
+		return 0;
+	int PalEntries;
+	if (lpbi->bmiHeader.biCompression == BI_BITFIELDS)
+		PalEntries = 3;
+	else PalEntries = (lpbi->bmiHeader.biBitCount <= 8) ?
+		(int)(1 << lpbi->bmiHeader.biBitCount) : 0;
+	if (lpbi->bmiHeader.biClrUsed)
+		PalEntries = lpbi->bmiHeader.biClrUsed;
+	if (PalEntries) {
+		if (!WriteFile(BmpFile, &lpbi->bmiColors, PalEntries * sizeof(RGBQUAD), &Written, NULL))
+			return 0;
+		if (Written < PalEntries * sizeof(RGBQUAD))
+			return 0;
+	}
+	bmfh.bfOffBits = GetFilePointer(BmpFile);
+	if (!WriteFile(BmpFile, lpvBits, lpbi->bmiHeader.biSizeImage, &Written, NULL))
+		return 0;
+	if (Written < lpbi->bmiHeader.biSizeImage)
+		return 0;
+	bmfh.bfSize = GetFilePointer(BmpFile);
+	SetFilePointer(BmpFile, 0, 0, FILE_BEGIN);
+	if (!WriteFile(BmpFile, &bmfh, sizeof(bmfh), &Written, NULL))
+		return 0;
+	if (Written < sizeof(bmfh))
+		return 0;
+	CloseHandle(BmpFile);
+	return 1;
+}
+
+bool ScreenCapture(HWND hWnd,int x, int y, int width, int height, char *filename) {
+	HDC hdc1 = GetDC(hWnd);
+	HDC hDc = CreateCompatibleDC(hdc1);
+	HBITMAP hBmp = CreateCompatibleBitmap(hdc1, width, height);
+	SelectObject(hDc, hBmp);
+	BitBlt(hDc, 0, 0, width, height, hdc1, x, y, SRCCOPY);
+	bool ret = SaveBMPFile(filename, hBmp, hDc, width, height);
+	DeleteBitmap(hBmp);
+	DeleteDC(hDc);
+	DeleteDC(hdc1);
+	return ret;
+}
+
+void saveScreen(HWND hWnd)
+{
+	RECT rect = FiguresControl::Instance().getScreen();
+	InvalidateRect(hWnd, NULL, true);
+	UpdateWindow(hWnd);
+	const char *path=WindowControl::Instance().saveFile(hWnd);
+	if (path)
+	{
+		ScreenCapture(hWnd,rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, const_cast<char*>(path));
+	}
 }
 
 POINT getCurrentCursorPosisiton(HWND hWnd)
@@ -444,6 +569,16 @@ VOID workWithPanelCommand(HWND hWnd,WPARAM wParam)
 	int wmEvent = HIWORD(wParam);
 	switch (wmId)
 	{
+	case IDM_ABOUT:
+		DialogBox((HINSTANCE)GetWindowLong(hWnd, GWL_HINSTANCE), MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
+		break;
+	case ID_FILE_EXIT:
+		DestroyWindow(hWnd);
+		break;
+		SendMessage(hWnd, WM_CLOSE, NULL, NULL);
+	case ID_PRINT:
+		isScreen = true;
+		break;
 	case ID_WIDTHLINE_1PX:
 	case ID_WIDTHLINE_2PX:
 	case ID_WIDTHLINE_3PX:
@@ -469,4 +604,23 @@ VOID workWithPanelCommand(HWND hWnd,WPARAM wParam)
 		FiguresControl::Instance().saveEncFile(WindowControl::Instance().saveFile(hWnd), hWnd);
 		break;
 	}
+}
+
+INT_PTR CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
+{
+	UNREFERENCED_PARAMETER(lParam);
+	switch (message)
+	{
+	case WM_INITDIALOG:
+		return (INT_PTR)TRUE;
+
+	case WM_COMMAND:
+		if (LOWORD(wParam) == IDOK || LOWORD(wParam) == IDCANCEL)
+		{
+			EndDialog(hDlg, LOWORD(wParam));
+			return (INT_PTR)TRUE;
+		}
+		break;
+	}
+	return (INT_PTR)FALSE;
 }
