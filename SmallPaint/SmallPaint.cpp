@@ -313,23 +313,25 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
   }
   break;
   case WM_LBUTTONDOWN:
-  {
+	{
 		if (!isScreen)
-		if (isText)
 		{
-			FiguresControl::Instance().clearCurrentFigure();
-			isWriteText = true;
-		}
-    FiguresControl::Instance().startDrawing(getCurrentCursorPosisiton(hWnd));
-		if (FiguresControl::Instance().isDrawing())
-		{
-			scale = 1;
-			xStartPositon = yStartPositon = xPosition = yPosition = 0;
-			InvalidateRect(hWnd, NULL, true);
-			UpdateWindow(hWnd);
-			SetCapture(hWnd);
-			SetCursor(LoadCursor(NULL,IDC_CROSS));
-			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
+			if (isText)
+			{
+				FiguresControl::Instance().clearCurrentFigure();
+				isWriteText = true;
+			}
+			FiguresControl::Instance().startDrawing(getCurrentCursorPosisiton(hWnd));
+			if (FiguresControl::Instance().isDrawing())
+			{
+				scale = 1;
+				xStartPositon = yStartPositon = xPosition = yPosition = 0;
+				InvalidateRect(hWnd, NULL, true);
+				UpdateWindow(hWnd);
+				SetCapture(hWnd);
+				SetCursor(LoadCursor(NULL, IDC_CROSS));
+				SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
+			}
 		}
 		else
 		{
@@ -338,7 +340,7 @@ LRESULT CALLBACK WndChildPaintZoneProc(HWND hWnd, UINT message, WPARAM wParam, L
 			SetCursor(LoadCursor(NULL, IDC_CROSS));
 			SetTimer(hWnd, IDC_TIMER_PAINT, TIMER_PAINT_RATE, NULL);
 		}
-  }
+	}
   break;
   case WM_LBUTTONUP:
   {
